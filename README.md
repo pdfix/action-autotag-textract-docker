@@ -8,6 +8,7 @@ A Docker image that automatically tags a PDF file using AWS Textract.
   - [Table of Contents](#table-of-contents)
   - [Getting Started](#getting-started)
   - [Run using Command Line Interface](#run-using-command-line-interface)
+  - [How to pass AWS credentials](#how-to-pass-aws-credentials)
   - [Run using REST API](#run-using-rest-api)
     - [Exporting Configuration for Integration](#exporting-configuration-for-integration)
   - [License](#license)
@@ -32,6 +33,14 @@ For more detailed information about the available command-line arguments, you ca
 
 ```bash
 docker run --rm pdfix/autotag-textract:latest --help
+```
+
+## How to pass AWS credentials
+
+The access credentials can be passed by sharing the directory ~/.aws into the docker container. To do this add this parameter to the cli.
+See the AWS guide to setup your access keys locally.
+```bash
+-v ~/.aws:/root/.aws
 ```
 
 ## Run using REST API

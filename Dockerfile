@@ -6,6 +6,7 @@ RUN apt-get update && \
     apt-get install -y \
     python3 \
     python3-pip \
+    libgl1 libglib2.0-0 \
     python3-venv \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
@@ -26,4 +27,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY config.json /usr/autotag/
 COPY src/ /usr/autotag/src/
 
-ENTRYPOINT ["/usr/lang-detect/venv/bin/python3", "/usr/autotag/src/main.py"]
+ENTRYPOINT ["/usr/autotag/venv/bin/python3", "/usr/autotag/src/main.py"]
+
+
+# docker build --rm -t pdfix-autotag-textract . 
+# docker run -it  -v $(pwd):/usr/pdfix -w /usr/pdfix autotag-textract-arm64 autotag -i input.pdf -o output.pdf
