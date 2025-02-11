@@ -88,7 +88,7 @@ def autotag_page(page: PdfPage, doc_struct_elem: PdsStructElement):
     textract_add_elements(page_map, page_view, result, image)
 
     # Debugging: Save the rendered image for inspection
-    cv2.imwrite("output.jpg", image)
+    cv2.imwrite("tmp_output.jpg", image)
 
     # Generate structured elements from the page map
     if not page_map.CreateElements():

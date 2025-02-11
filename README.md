@@ -8,7 +8,7 @@ A Docker image that automatically tags a PDF file using AWS Textract.
   - [Table of Contents](#table-of-contents)
   - [Getting Started](#getting-started)
   - [Run using Command Line Interface](#run-using-command-line-interface)
-  - [Run OCR using REST API](#run-ocr-using-rest-api)
+  - [Run using REST API](#run-using-rest-api)
     - [Exporting Configuration for Integration](#exporting-configuration-for-integration)
   - [License](#license)
   - [Help \& Support](#help--support)
@@ -34,7 +34,7 @@ For more detailed information about the available command-line arguments, you ca
 docker run --rm pdfix/autotag-textract:latest --help
 ```
 
-## Run OCR using REST API
+## Run using REST API
 Comming soon. Please contact us.
 
 ### Exporting Configuration for Integration
