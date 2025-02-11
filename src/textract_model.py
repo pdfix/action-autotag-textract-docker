@@ -4,13 +4,14 @@ from PIL import Image
 import cv2
 from pdfixsdk import *
 
-def textract_model(image: str): 
+
+def textract_model(image: str):
     extractor = Textractor(profile_name="default")
     image = Image.open(image)
     document = extractor.analyze_document(
         file_source=image,
         features=[TextractFeatures.TABLES, TextractFeatures.LAYOUT],
-        save_image=True
+        save_image=True,
     )
 
     return document
@@ -37,7 +38,9 @@ def textract_add_elements(page_map, page_view, document, image):
         rect.bottom = int((region.bbox.y + region.bbox.height) * page_h + 2)
         bbox = page_view.RectToPage(rect)
 
-        cv2.rectangle(image, (rect.left, rect.top), (rect.right, rect.bottom), (0, 255, 0), 2)
+        cv2.rectangle(
+            image, (rect.left, rect.top), (rect.right, rect.bottom), (0, 255, 0), 2
+        )
 
         # Determine element type
         element_type = kPdeText  # Default to text
@@ -48,17 +51,16 @@ def textract_add_elements(page_map, page_view, document, image):
             element_type = kPdeImage
         elif region_type == "LAYOUT_LIST":
             element_type = kPdeList
-        
+
         element = page_map.CreateElement(element_type, None)
         element.SetBBox(bbox)
-        
+
         if region_type == "LAYOUT_HEADER":
             element.SetTextStyle(kTextH1)
         elif region_type == "LAYOUT_SECTION_HEADER":
             element.SetTextStyle(kTextH2)
         elif region_type == "LAYOUT_TABLE":
-            update_table_cells(element, page_view, region, image)    
-
+            update_table_cells(element, page_view, region, image)
 
 
 def update_table_cells(pdf_element: PdeElement, page_view: PdfPageView, region, image):
@@ -70,7 +72,7 @@ def update_table_cells(pdf_element: PdeElement, page_view: PdfPageView, region, 
         page_view (PdfPageView): The view of the PDF page used for coordinate conversion.
         region (): The data containing the textract table region.
         image (any): The image representation of the page for visualization.
-    """    
+    """
     # Return early if no cells exist in the region
     layout_table = region.children[0]
 
@@ -94,7 +96,9 @@ def update_table_cells(pdf_element: PdeElement, page_view: PdfPageView, region, 
         bbox = page_view.RectToPage(rect)
 
         # Draw the cell rectangle on the image for visualization (optional step)
-        cv2.rectangle(image, (rect.left, rect.top), (rect.right, rect.bottom), (255, 0, 0), 1)
+        cv2.rectangle(
+            image, (rect.left, rect.top), (rect.right, rect.bottom), (255, 0, 0), 1
+        )
 
         # Convert cell rectangle to page coordinates
         bbox = page_view.RectToPage(rect)
@@ -106,4 +110,3 @@ def update_table_cells(pdf_element: PdeElement, page_view: PdfPageView, region, 
         cell_element.SetBBox(bbox)
         cell_element.SetColSpan(1)
         cell_element.SetRowSpan(1)
-

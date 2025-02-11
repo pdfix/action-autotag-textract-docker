@@ -4,6 +4,7 @@ from tqdm import tqdm
 from textract_model import textract_model, textract_add_elements
 import cv2
 
+
 def render_page(pdf_page: PdfPage, page_view: PdfPageView):
     """
     Renders the PDF page into image
@@ -12,7 +13,7 @@ def render_page(pdf_page: PdfPage, page_view: PdfPageView):
         pdf_page (PdfPage): The page to render.
         page_view (PdfPageView): The view of the PDF page used for coordinate conversion.
         image (any): The image representation of the page for visualization.
-    """     
+    """
     # Initialize PDFix instance
     pdfix = GetPdfix()
 
@@ -33,27 +34,26 @@ def render_page(pdf_page: PdfPage, page_view: PdfPageView):
     # Render the page content onto the image
     if not pdf_page.DrawContent(render_params):
         raise RuntimeError(f"{pdfix.GetError()} [{pdfix.GetErrorType()}]")
-    
+
     # Save the rendered image to a temporary file in JPG format
     with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as temp_file:
         file_stream = pdfix.CreateFileStream(temp_file.name, kPsTruncate)
-        
+
         # Set image parameters (format and quality)
         image_params = PdfImageParams()
         image_params.format = kImageFormatJpg
         image_params.quality = 100
-        
+
         # Save the image to the file stream
-        if not page_image.SaveToStream(file_stream, image_params):                 
+        if not page_image.SaveToStream(file_stream, image_params):
             raise RuntimeError(f"{pdfix.GetError()} [{pdfix.GetErrorType()}]")
-        
+
         # Clean up resources
         file_stream.Destroy()
         page_image.Destroy()
-    
+
         # Return the saved image
         return temp_file.name
-
 
 
 def autotag_page(page: PdfPage, doc_struct_elem: PdsStructElement):
@@ -95,8 +95,10 @@ def autotag_page(page: PdfPage, doc_struct_elem: PdsStructElement):
         raise RuntimeError(f"{pdfix.GetError()} [{pdfix.GetErrorType()}]")
 
     # Create a new structural element for the page
-    page_element = doc_struct_elem.AddNewChild("NonStruct", doc_struct_elem.GetNumChildren())
-    
+    page_element = doc_struct_elem.AddNewChild(
+        "NonStruct", doc_struct_elem.GetNumChildren()
+    )
+
     # Assign recognized elements as tags to the structure element
     if not page_map.AddTags(page_element, False, PdfTagsParams()):
         raise RuntimeError(f"{pdfix.GetError()} [{pdfix.GetErrorType()}]")

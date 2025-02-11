@@ -3,6 +3,7 @@ import argparse, sys, os, time
 from datetime import datetime
 from autotag_pdf import autotag_pdf
 
+
 def get_config(args) -> None:
     with open(
         os.path.join(Path(__file__).parent.absolute(), "../config.json"),
@@ -15,12 +16,15 @@ def get_config(args) -> None:
         else:
             print(f.read())
 
+
 def main() -> None:
     try:
         parser = argparse.ArgumentParser(
             description="Process a PDF file using layout recognition",
         )
-        subparsers = parser.add_subparsers(title="Commands", dest="command", required=True)
+        subparsers = parser.add_subparsers(
+            title="Commands", dest="command", required=True
+        )
 
         # get config subparser
         pars_config = subparsers.add_parser(
@@ -60,20 +64,23 @@ def main() -> None:
 
         dayTyme = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         print(f"\nProcessing started at: {dayTyme}")
-        
+
         # Run assigned function
         if hasattr(args, "func"):
             args.func(args)
         else:
-            parser.print_help()    
+            parser.print_help()
 
         end_time = time.time()  # Record the end time
-        elapsed_time = end_time - start_time  # Calculate the elapsed time            
-        print(f"\nProcessing finished at: {dayTyme}. Elapsed time: {elapsed_time:.2f} seconds")        
+        elapsed_time = end_time - start_time  # Calculate the elapsed time
+        print(
+            f"\nProcessing finished at: {dayTyme}. Elapsed time: {elapsed_time:.2f} seconds"
+        )
 
     except Exception as e:
         print(f"Error: {e}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()
