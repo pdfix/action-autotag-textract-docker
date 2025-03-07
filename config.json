@@ -6,8 +6,8 @@
             "desc": "Automatically tag PDF using AWS Textract",
             "version": "v0.0.0",
             "icon": "autotag_textract",
-            "category": "Metadata",
-            "program": "docker run --platform -v ${working_directory}:/data -v \"~/.aws:~/.aws\" -w /data --rm pdfix/autotag-textract:latest --name \"${license_name}\" --key \"${license_key}\" autotag -i \"/data/${input_pdf}\" -o \"/data/${output_pdf}\"",
+            "category": "Accessibility",
+            "program": "docker run -v ${working_directory}:/data -v \"~/.aws:/root/.aws\" -w /data --rm pdfix/autotag-textract:latest --name \"${license_name}\" --key \"${license_key}\" autotag -i \"/data/${input_pdf}\" -o \"/data/${output_pdf}\"",
             "args": [
                 {
                     "name": "input_pdf",

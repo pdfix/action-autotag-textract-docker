@@ -22,6 +22,9 @@ def main() -> None:
         parser = argparse.ArgumentParser(
             description="Process a PDF file using layout recognition",
         )
+        parser.add_argument("--name", type=str, default="", help="license name")
+        parser.add_argument("--key", type=str, default="", help="license key")
+
         subparsers = parser.add_subparsers(
             title="Commands", dest="command", required=True
         )
