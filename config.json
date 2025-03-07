@@ -7,7 +7,7 @@
             "version": "v0.0.0",
             "icon": "autotag_textract",
             "category": "Accessibility",
-            "program": "docker run -v ${working_directory}:/data -v \"~/.aws:/root/.aws\" -w /data --rm pdfix/autotag-textract:latest --name \"${license_name}\" --key \"${license_key}\" autotag -i \"/data/${input_pdf}\" -o \"/data/${output_pdf}\"",
+            "program": "docker run -v \"${working_directory}:/data\" -v \"~/.aws:/root/.aws\" -w /data --rm pdfix/autotag-textract:latest --name \"${license_name}\" --key \"${license_key}\" autotag -i \"/data/${input_pdf}\" -o \"/data/${output_pdf}\"",
             "args": [
                 {
                     "name": "input_pdf",
