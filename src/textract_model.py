@@ -1,13 +1,51 @@
-from textractor import Textractor
-from textractor.data.constants import TextractFeatures, Direction, DirectionalFinderType
-from PIL import Image
 import cv2
-from pdfixsdk import *
+from pdfixsdk import (
+    PdeCell,
+    PdeElement,
+    PdePageMap,
+    PdeTable,
+    PdfDevRect,
+    PdfPageView,
+    kPdeCell,
+    kPdeImage,
+    kPdeList,
+    kPdeTable,
+    kPdeText,
+    kTextH1,
+    kTextH2,
+)
+from PIL import Image
+from textractor import Textractor
+from textractor.data.constants import (
+    LAYOUT_FIGURE,
+    # LAYOUT_FOOTER,
+    LAYOUT_HEADER,
+    # LAYOUT_KEY_VALUE,
+    LAYOUT_LIST,
+    # LAYOUT_PAGE_NUMBER,
+    # LAYOUT_TEXT,
+    # LAYOUT_ENTITY,
+    LAYOUT_SECTION_HEADER,
+    # LAYOUT_TITLE,
+    LAYOUT_TABLE,
+    TextractFeatures,
+)
+from textractor.entities.document import Document
+from textractor.entities.layout import Layout
 
 
-def textract_model(image: str):
+def textract_model(image_path: str) -> Document:
+    """
+    Analyzes the document using Textract and returns the document object.
+
+    Args:
+        image_path (str): Path to the image file to be analyzed.
+
+    Returns:
+        The document object containing the analysis results.
+    """
     extractor = Textractor(profile_name="default")
-    image = Image.open(image)
+    image = Image.open(image_path)
     document = extractor.analyze_document(
         file_source=image,
         features=[TextractFeatures.TABLES, TextractFeatures.LAYOUT],
@@ -17,7 +55,9 @@ def textract_model(image: str):
     return document
 
 
-def textract_add_elements(page_map, page_view, document, image):
+def textract_add_elements(
+    page_map: PdePageMap, page_view: PdfPageView, document: Document, image: cv2.typing.MatLike
+) -> None:
     """
     Adds initial structural elements to the page map based on detected regions.
 
@@ -25,7 +65,7 @@ def textract_add_elements(page_map, page_view, document, image):
         page_map (PdePageMap): The page map where elements will be added.
         page_view (PdfPageView): The view of the PDF page used for coordinate conversion.
         document (): A document returned by textract.
-        image (any): The image representation of the page for visualization.
+        image (cv2.typing.MatLike): The image representation of the page for visualization.
     """
     page_w = page_view.GetDeviceWidth()
     page_h = page_view.GetDeviceHeight()
@@ -38,40 +78,40 @@ def textract_add_elements(page_map, page_view, document, image):
         rect.bottom = int((region.bbox.y + region.bbox.height) * page_h + 2)
         bbox = page_view.RectToPage(rect)
 
-        cv2.rectangle(
-            image, (rect.left, rect.top), (rect.right, rect.bottom), (0, 255, 0), 2
-        )
+        cv2.rectangle(image, (rect.left, rect.top), (rect.right, rect.bottom), (0, 255, 0), 2)
 
         # Determine element type
         element_type = kPdeText  # Default to text
         region_type = region.layout_type
-        if region_type == "LAYOUT_TABLE":
+        if region_type == LAYOUT_TABLE:
             element_type = kPdeTable
-        elif region_type == "LAYOUT_FIGURE":
+        elif region_type == LAYOUT_FIGURE:
             element_type = kPdeImage
-        elif region_type == "LAYOUT_LIST":
+        elif region_type == LAYOUT_LIST:
             element_type = kPdeList
 
         element = page_map.CreateElement(element_type, None)
         element.SetBBox(bbox)
 
-        if region_type == "LAYOUT_HEADER":
+        if region_type == LAYOUT_HEADER:
             element.SetTextStyle(kTextH1)
-        elif region_type == "LAYOUT_SECTION_HEADER":
+        elif region_type == LAYOUT_SECTION_HEADER:
             element.SetTextStyle(kTextH2)
-        elif region_type == "LAYOUT_TABLE":
+        elif region_type == LAYOUT_TABLE:
             update_table_cells(element, page_view, region, image)
 
 
-def update_table_cells(pdf_element: PdeElement, page_view: PdfPageView, region, image):
+def update_table_cells(
+    pdf_element: PdeElement, page_view: PdfPageView, region: Layout, image: cv2.typing.MatLike
+) -> None:
     """
     Updates the table element with detected cells
 
     Args:
         pdf_element (PdeElement): The table element to edit.
         page_view (PdfPageView): The view of the PDF page used for coordinate conversion.
-        region (): The data containing the textract table region.
-        image (any): The image representation of the page for visualization.
+        region (Layout): The data containing the textract table region.
+        image (cv2.typing.MatLike): The image representation of the page for visualization.
     """
     # Return early if no cells exist in the region
     layout_table = region.children[0]
@@ -96,9 +136,7 @@ def update_table_cells(pdf_element: PdeElement, page_view: PdfPageView, region, 
         bbox = page_view.RectToPage(rect)
 
         # Draw the cell rectangle on the image for visualization (optional step)
-        cv2.rectangle(
-            image, (rect.left, rect.top), (rect.right, rect.bottom), (255, 0, 0), 1
-        )
+        cv2.rectangle(image, (rect.left, rect.top), (rect.right, rect.bottom), (255, 0, 0), 1)
 
         # Convert cell rectangle to page coordinates
         bbox = page_view.RectToPage(rect)

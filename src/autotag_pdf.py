@@ -1,18 +1,35 @@
 import tempfile
-from pdfixsdk import *
-from tqdm import tqdm
-from textract_model import textract_model, textract_add_elements
+
 import cv2
+from pdfixsdk import (
+    GetPdfix,
+    PdfImageParams,
+    PdfPage,
+    PdfPageRenderParams,
+    PdfPageView,
+    PdfTagsParams,
+    PdsStructElement,
+    kImageDIBFormatArgb,
+    kImageFormatJpg,
+    kPsTruncate,
+    kRotate0,
+    kSaveFull,
+)
+from tqdm import tqdm
+
+from textract_model import textract_add_elements, textract_model
 
 
-def render_page(pdf_page: PdfPage, page_view: PdfPageView):
+def render_page(pdf_page: PdfPage, page_view: PdfPageView) -> str:
     """
     Renders the PDF page into image
 
     Args:
         pdf_page (PdfPage): The page to render.
         page_view (PdfPageView): The view of the PDF page used for coordinate conversion.
-        image (any): The image representation of the page for visualization.
+
+    Returns:
+        The path to the rendered image temporary file.
     """
     # Initialize PDFix instance
     pdfix = GetPdfix()
@@ -56,7 +73,7 @@ def render_page(pdf_page: PdfPage, page_view: PdfPageView):
         return temp_file.name
 
 
-def autotag_page(page: PdfPage, doc_struct_elem: PdsStructElement):
+def autotag_page(page: PdfPage, doc_struct_elem: PdsStructElement) -> None:
     """
     Automatically tags a PDF page by analyzing its layout and mapping the detected elements
     to the document structure.
@@ -95,9 +112,7 @@ def autotag_page(page: PdfPage, doc_struct_elem: PdsStructElement):
         raise RuntimeError(f"{pdfix.GetError()} [{pdfix.GetErrorType()}]")
 
     # Create a new structural element for the page
-    page_element = doc_struct_elem.AddNewChild(
-        "NonStruct", doc_struct_elem.GetNumChildren()
-    )
+    page_element = doc_struct_elem.AddNewChild("NonStruct", doc_struct_elem.GetNumChildren())
 
     # Assign recognized elements as tags to the structure element
     if not page_map.AddTags(page_element, False, PdfTagsParams()):
@@ -108,7 +123,7 @@ def autotag_page(page: PdfPage, doc_struct_elem: PdsStructElement):
     page_view.Release()
 
 
-def autotag_pdf(args):
+def autotag_pdf(args) -> None:
     """
     Automatically tags a PDF document by analyzing its structure and applying tags to each page.
 

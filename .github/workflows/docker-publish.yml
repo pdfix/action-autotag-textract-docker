@@ -4,7 +4,6 @@ on:
   push:
     # branches:
     #   - main
-    #   - dev
     tags:
       - 'v*.*.*'  # Matches version tags like v1.0.0
   workflow_dispatch:
@@ -56,10 +55,6 @@ jobs:
           images: ${{ env.DOCKER_HUB_NAMESPACE }}/${{ env.DOCKER_HUB_REPOSITORY }}
           tags: ${{ env.tag }}
 
-
-    #   - name: Run tests
-    #     run: chmod +x test.sh && ./test.sh
-
       - name: Build and push Docker image
         id: push
         uses: docker/build-push-action@v6
@@ -70,13 +65,6 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-
-      # - name: Generate artifact attestation
-      #   uses: actions/attest-build-provenance@v1
-      #   with:
-      #     subject-name: index.docker.io/${{ env.DOCKER_HUB_NAMESPACE }}/${{ env.DOCKER_HUB_REPOSITORY }}:${{ env.tag }}
-      #     subject-digest: ${{ steps.push.outputs.digest }}
-      #     push-to-registry: true
 
       - name: Docker Hub Description
         uses: peter-evans/dockerhub-description@v4

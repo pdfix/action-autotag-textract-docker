@@ -28,7 +28,3 @@ COPY config.json /usr/autotag/
 COPY src/ /usr/autotag/src/
 
 ENTRYPOINT ["/usr/autotag/venv/bin/python3", "/usr/autotag/src/main.py"]
-
-
-# docker build --rm -t pdfix-autotag-textract . 
-# docker run -it  -v $(pwd):/usr/pdfix -w /usr/pdfix autotag-textract-arm64 autotag -i input.pdf -o output.pdf
