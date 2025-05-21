@@ -14,7 +14,6 @@ from pdfixsdk import (
     kPdeTable,
     kPdeText,
     kTextH1,
-    kTextH2,
 )
 from PIL import Image
 from textractor import Textractor
