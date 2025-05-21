@@ -7,6 +7,8 @@ from pdfixsdk import (
     PdfDevRect,
     PdfPageView,
     kPdeCell,
+    kPdeFooter,
+    kPdeHeader,
     kPdeImage,
     kPdeList,
     kPdeTable,
@@ -18,16 +20,13 @@ from PIL import Image
 from textractor import Textractor
 from textractor.data.constants import (
     LAYOUT_FIGURE,
-    # LAYOUT_FOOTER,
+    LAYOUT_FOOTER,
     LAYOUT_HEADER,
-    # LAYOUT_KEY_VALUE,
     LAYOUT_LIST,
-    # LAYOUT_PAGE_NUMBER,
-    # LAYOUT_TEXT,
-    # LAYOUT_ENTITY,
+    LAYOUT_PAGE_NUMBER,
     LAYOUT_SECTION_HEADER,
-    # LAYOUT_TITLE,
     LAYOUT_TABLE,
+    LAYOUT_TITLE,
     TextractFeatures,
 )
 from textractor.entities.document import Document
@@ -84,10 +83,10 @@ def textract_add_elements(
         element.SetBBox(bbox)
 
         region_type = region.layout_type
-        if region_type == LAYOUT_HEADER:
-            element.SetTextStyle(kTextH1)
+        if region_type == LAYOUT_TITLE:
+            element.SetTextStyle(kTextH1)  # TODO maybe set as document title
         elif region_type == LAYOUT_SECTION_HEADER:
-            element.SetTextStyle(kTextH2)
+            element.SetTextStyle(kTextH1)
         elif region_type == LAYOUT_TABLE:
             update_table_cells(element, page_view, region, image)
 
@@ -102,12 +101,18 @@ def convert_region_type_to_element_type(region_type: str) -> int:
     Returns:
         int: The corresponding PDFix element type.
     """
-    if region_type == LAYOUT_TABLE:
-        return kPdeTable
+    if region_type == LAYOUT_FOOTER:
+        return kPdeFooter
+    elif region_type == LAYOUT_HEADER:
+        return kPdeHeader
     elif region_type == LAYOUT_FIGURE:
         return kPdeImage
     elif region_type == LAYOUT_LIST:
         return kPdeList
+    elif region_type == LAYOUT_PAGE_NUMBER:
+        return kPdeFooter
+    elif region_type == LAYOUT_TABLE:
+        return kPdeTable
 
     # Default to text
     return kPdeText
