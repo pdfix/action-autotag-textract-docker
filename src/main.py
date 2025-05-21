@@ -54,6 +54,10 @@ def get_pdfix_config(path: str) -> None:
                 out.write(file.read())
 
 
+def run_autotag_subcommand(args) -> None:
+    autotag_pdf(args.input, args.output, args.name, args.key)
+
+
 def main() -> None:
     try:
         parser = argparse.ArgumentParser(
@@ -81,7 +85,7 @@ def main() -> None:
             help="Run autotag PDF document",
         )
         set_arguments(autotag_subparser, ["name", "key", "input", "output"], True, "The output PDF file")
-        autotag_subparser.set_defaults(func=autotag_pdf)
+        autotag_subparser.set_defaults(func=run_autotag_subcommand)
 
         # Parse arguments
         args = parser.parse_args()

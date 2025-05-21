@@ -43,34 +43,40 @@ def render_page(pdf_page: PdfPage, page_view: PdfPageView) -> str:
     if page_image is None:
         raise RuntimeError(f"{pdfix.GetError()} [{pdfix.GetErrorType()}]")
 
-    # Set up rendering parameters
-    render_params = PdfPageRenderParams()
-    render_params.image = page_image
-    render_params.matrix = page_view.GetDeviceMatrix()
+    try:
+        # Set up rendering parameters
+        render_params = PdfPageRenderParams()
+        render_params.image = page_image
+        render_params.matrix = page_view.GetDeviceMatrix()
 
-    # Render the page content onto the image
-    if not pdf_page.DrawContent(render_params):
-        raise RuntimeError(f"{pdfix.GetError()} [{pdfix.GetErrorType()}]")
-
-    # Save the rendered image to a temporary file in JPG format
-    with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as temp_file:
-        file_stream = pdfix.CreateFileStream(temp_file.name, kPsTruncate)
-
-        # Set image parameters (format and quality)
-        image_params = PdfImageParams()
-        image_params.format = kImageFormatJpg
-        image_params.quality = 100
-
-        # Save the image to the file stream
-        if not page_image.SaveToStream(file_stream, image_params):
+        # Render the page content onto the image
+        if not pdf_page.DrawContent(render_params):
             raise RuntimeError(f"{pdfix.GetError()} [{pdfix.GetErrorType()}]")
 
-        # Clean up resources
-        file_stream.Destroy()
-        page_image.Destroy()
+        # Save the rendered image to a temporary file in JPG format
+        with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as temp_file:
+            file_stream = pdfix.CreateFileStream(temp_file.name, kPsTruncate)
 
-        # Return the saved image
-        return temp_file.name
+            try:
+                # Set image parameters (format and quality)
+                image_params = PdfImageParams()
+                image_params.format = kImageFormatJpg
+                image_params.quality = 100
+
+                # Save the image to the file stream
+                if not page_image.SaveToStream(file_stream, image_params):
+                    raise RuntimeError(f"{pdfix.GetError()} [{pdfix.GetErrorType()}]")
+            except Exception:
+                raise
+            finally:
+                file_stream.Close()
+
+            # Return the saved image
+            return temp_file.name
+    except Exception:
+        raise
+    finally:
+        page_image.Destroy()
 
 
 def autotag_page(page: PdfPage, doc_struct_elem: PdsStructElement) -> None:
@@ -89,58 +95,61 @@ def autotag_page(page: PdfPage, doc_struct_elem: PdsStructElement) -> None:
     rotate = kRotate0
     page_view = page.AcquirePageView(zoom, rotate)
 
-    # Render the page as an image
-    img_name = render_page(page, page_view)
+    try:
+        # Render the page as an image
+        img_name = render_page(page, page_view)
 
-    # Store image for saving results
-    image = cv2.imread(img_name)
+        # Store image for saving results
+        image = cv2.imread(img_name)
 
-    # Run layout analysis
-    result = textract_model(img_name)
+        # Run layout analysis
+        result = textract_model(img_name)
 
-    # Acquire the page map to store recognized elements
-    page_map = page.AcquirePageMap()
+        # Acquire the page map to store recognized elements
+        page_map = page.AcquirePageMap()
 
-    # Add detected elements to the page map based on the analysis result
-    textract_add_elements(page_map, page_view, result, image)
+        try:
+            # Add detected elements to the page map based on the analysis result
+            textract_add_elements(page_map, page_view, result, image)
 
-    # Debugging: Save the rendered image for inspection
-    cv2.imwrite("tmp_output.jpg", image)
+            # Debugging: Save the rendered image for inspection
+            cv2.imwrite("tmp_output.jpg", image)
 
-    # Generate structured elements from the page map
-    if not page_map.CreateElements():
-        raise RuntimeError(f"{pdfix.GetError()} [{pdfix.GetErrorType()}]")
+            # Generate structured elements from the page map
+            if not page_map.CreateElements():
+                raise RuntimeError(f"{pdfix.GetError()} [{pdfix.GetErrorType()}]")
 
-    # Create a new structural element for the page
-    page_element = doc_struct_elem.AddNewChild("NonStruct", doc_struct_elem.GetNumChildren())
+            # Create a new structural element for the page
+            page_element = doc_struct_elem.AddNewChild("NonStruct", doc_struct_elem.GetNumChildren())
 
-    # Assign recognized elements as tags to the structure element
-    if not page_map.AddTags(page_element, False, PdfTagsParams()):
-        raise RuntimeError(f"{pdfix.GetError()} [{pdfix.GetErrorType()}]")
+            # Assign recognized elements as tags to the structure element
+            if not page_map.AddTags(page_element, False, PdfTagsParams()):
+                raise RuntimeError(f"{pdfix.GetError()} [{pdfix.GetErrorType()}]")
+        except Exception:
+            raise
+        finally:
+            page_map.Release()
+    except Exception:
+        raise
+    finally:
+        page_view.Release()
 
-    # Release resources
-    page_map.Release()
-    page_view.Release()
 
-
-def autotag_pdf(args) -> None:
+def autotag_pdf(input: str, output: str, license_name: str, license_key: str) -> None:
     """
     Automatically tags a PDF document by analyzing its structure and applying tags to each page.
 
     Args:
-        args (): arguments passed by argparse
-            input (str): Path to the input PDF file.
-            output (str): Path to save the output tagged PDF file.
-            name (str): PDFix License Name
-            key (str): PDFix License Key
+        input (str): Path to the input PDF file.
+        output (str): Path to save the output tagged PDF file.
+        name (str): PDFix License Name
+        key (str): PDFix License Key
     """
     pdfix = GetPdfix()
     if pdfix is None:
         raise Exception("Pdfix Initialization failed")
 
     # Authorize PDFix SDK
-    license_name = args.name if hasattr(args, "name") else None
-    license_key = args.key if hasattr(args, "key") else None
     if license_name and license_key:
         if not pdfix.GetAccountAuthorization().Authorize(license_name, license_key):
             raise RuntimeError(f"{pdfix.GetError()} [{pdfix.GetErrorType()}]")
@@ -151,7 +160,7 @@ def autotag_pdf(args) -> None:
         print("No license name or key provided. Using PDFix SDK trial")
 
     # Open the document
-    doc = pdfix.OpenDoc(args.input, "")
+    doc = pdfix.OpenDoc(input, "")
     if doc is None:
         raise RuntimeError(f"{pdfix.GetError()} [{pdfix.GetErrorType()}]")
 
@@ -176,9 +185,9 @@ def autotag_pdf(args) -> None:
             autotag_page(page, doc_struct_elem)  # Removed unnecessary pdfix argument
         except Exception as e:
             raise e
-
-        page.Release()
+        finally:
+            page.Release()
 
     # Save the processed document
-    if not doc.Save(args.output, kSaveFull):
+    if not doc.Save(output, kSaveFull):
         raise RuntimeError(f"{pdfix.GetError()} [{pdfix.GetErrorType()}]")
