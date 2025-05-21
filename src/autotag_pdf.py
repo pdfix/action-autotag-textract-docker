@@ -138,14 +138,17 @@ def autotag_pdf(args) -> None:
     if pdfix is None:
         raise Exception("Pdfix Initialization failed")
 
-    # pdfix authorization
-    if hasattr(args, "key") and args.key:
-        if hasattr(args, "name") and args.name:
-            if not pdfix.GetAccountAuthorization().Authorize(args.name, args.key):
-                raise RuntimeError(f"{pdfix.GetError()} [{pdfix.GetErrorType()}]")
-        else:
-            if not pdfix.GetStandardAuthorization().Activate(args.key):
-                raise RuntimeError(f"{pdfix.GetError()} [{pdfix.GetErrorType()}]")
+    # Authorize PDFix SDK
+    license_name = args.name if hasattr(args, "name") else None
+    license_key = args.key if hasattr(args, "key") else None
+    if license_name and license_key:
+        if not pdfix.GetAccountAuthorization().Authorize(license_name, license_key):
+            raise RuntimeError(f"{pdfix.GetError()} [{pdfix.GetErrorType()}]")
+    elif license_key:
+        if not pdfix.GetStandarsAuthorization().Activate(license_key):
+            raise RuntimeError(f"{pdfix.GetError()} [{pdfix.GetErrorType()}]")
+    else:
+        print("No license name or key provided. Using PDFix SDK trial")
 
     # Open the document
     doc = pdfix.OpenDoc(args.input, "")
