@@ -93,6 +93,8 @@ def textract_add_elements(
 def convert_region_type_to_element_type(region_type: str) -> int:
     """
     Converts a Textract region type to a PDFix element type.
+    List of region types:
+    https://docs.aws.amazon.com/textract/latest/dg/layoutresponse.html
 
     Args:
         region_type (str): The Textract region type.
