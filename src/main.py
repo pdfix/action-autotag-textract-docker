@@ -2,6 +2,7 @@ import argparse
 import os
 import sys
 import time
+import traceback
 from datetime import datetime
 from pathlib import Path
 
@@ -108,6 +109,7 @@ def main() -> None:
         print(f"\nProcessing finished at: {current_time}. Elapsed time: {elapsed_time:.2f} seconds")
 
     except Exception as e:
+        print(traceback.format_exc(), file=sys.stderr)
         print(f"Error: {e}")
         sys.exit(1)
 

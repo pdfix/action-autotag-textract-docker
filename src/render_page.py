@@ -61,7 +61,7 @@ def render_page(pdf_page: PdfPage, page_view: PdfPageView) -> str:
             except Exception:
                 raise
             finally:
-                file_stream.Close()
+                file_stream.Destroy()
 
             # Return the saved image
             return temp_file.name
