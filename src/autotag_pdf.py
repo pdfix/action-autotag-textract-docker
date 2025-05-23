@@ -9,7 +9,7 @@ from pdfixsdk import (
 )
 from tqdm import tqdm
 
-from render_page import render_page
+from page_renderer import render_page
 from textract_model import textract_add_elements, textract_model
 
 
