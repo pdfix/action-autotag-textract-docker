@@ -3,7 +3,8 @@
     "version": "v0.0.0",
     "actions": [
         {
-            "name": "Autotag PDF Textract",
+            "title": "AutoTag Textract",
+            "name": "pdfix-autotag_textract",
             "desc": "Automatically tag PDF using AWS Textract",
             "version": "v0.0.0",
             "icon": "autotag_textract",
