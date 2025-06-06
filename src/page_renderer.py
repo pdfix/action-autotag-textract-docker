@@ -1,8 +1,8 @@
-import tempfile
+from typing import BinaryIO
 
 from pdfixsdk import (
-    GetPdfix,
     PdfImageParams,
+    Pdfix,
     PdfPage,
     PdfPageRenderParams,
     PdfPageView,
@@ -11,21 +11,22 @@ from pdfixsdk import (
     kPsTruncate,
 )
 
+from exceptions import PdfixException
 
-def render_page(pdf_page: PdfPage, page_view: PdfPageView) -> str:
+
+def render_page(pdfix: Pdfix, pdf_page: PdfPage, page_view: PdfPageView, temp_file: BinaryIO) -> None:
     """
     Renders the PDF page into image
 
     Args:
+        pdfix (Pdfix): Pdfix SDK.
         pdf_page (PdfPage): The page to render.
         page_view (PdfPageView): The view of the PDF page used for coordinate conversion.
+        temp_file (BinaryIO): File to save image to.
 
     Returns:
         The path to the rendered image temporary file.
     """
-    # Initialize PDFix instance
-    pdfix = GetPdfix()
-
     # Get the dimensions of the page view (device width and height)
     page_width = page_view.GetDeviceWidth()
     page_height = page_view.GetDeviceHeight()
@@ -33,7 +34,7 @@ def render_page(pdf_page: PdfPage, page_view: PdfPageView) -> str:
     # Create an image with the specified dimensions and ARGB format
     page_image = pdfix.CreateImage(page_width, page_height, kImageDIBFormatArgb)
     if page_image is None:
-        raise RuntimeError(f"{pdfix.GetError()} [{pdfix.GetErrorType()}]")
+        raise PdfixException(pdfix, "Failed to create image of page")
 
     try:
         # Set up rendering parameters
@@ -43,28 +44,27 @@ def render_page(pdf_page: PdfPage, page_view: PdfPageView) -> str:
 
         # Render the page content onto the image
         if not pdf_page.DrawContent(render_params):
-            raise RuntimeError(f"{pdfix.GetError()} [{pdfix.GetErrorType()}]")
+            raise PdfixException(pdfix, "Failed to draw content of page into image")
 
         # Save the rendered image to a temporary file in JPG format
-        with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as temp_file:
-            file_stream = pdfix.CreateFileStream(temp_file.name, kPsTruncate)
+        file_stream = pdfix.CreateFileStream(temp_file.name, kPsTruncate)
+        if file_stream is None:
+            raise PdfixException(pdfix, "Unable to create file stream")
 
-            try:
-                # Set image parameters (format and quality)
-                image_params = PdfImageParams()
-                image_params.format = kImageFormatJpg
-                image_params.quality = 100
+        try:
+            # Set image parameters (format and quality)
+            image_params = PdfImageParams()
+            image_params.format = kImageFormatJpg
+            image_params.quality = 100
 
-                # Save the image to the file stream
-                if not page_image.SaveToStream(file_stream, image_params):
-                    raise RuntimeError(f"{pdfix.GetError()} [{pdfix.GetErrorType()}]")
-            except Exception:
-                raise
-            finally:
-                file_stream.Destroy()
+            # Save the image to the file stream
+            if not page_image.SaveToStream(file_stream, image_params):
+                raise PdfixException(pdfix, "Failed to save rendered image to temporary file")
 
-            # Return the saved image
-            return temp_file.name
+        except Exception:
+            raise
+        finally:
+            file_stream.Destroy()
     except Exception:
         raise
     finally:

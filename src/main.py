@@ -56,62 +56,69 @@ def get_pdfix_config(path: str) -> None:
 
 
 def run_autotag_subcommand(args) -> None:
-    autotag_pdf(args.input, args.output, args.name, args.key)
+    zoom = 2.0
+    autotag_pdf(args.input, args.output, args.name, args.key, zoom)
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Autotag PDF file using layout recognition",
+    )
+
+    subparsers = parser.add_subparsers(title="Commands", dest="command", required=True)
+
+    # Config subparser
+    config_subparser = subparsers.add_parser(
+        "config",
+        help="Extract config file for integration",
+    )
+    set_arguments(
+        config_subparser,
+        ["output"],
+        False,
+        "Output to save the config JSON file. Application output" + "is used if not provided",
+    )
+    config_subparser.set_defaults(func=run_config_subcommand)
+
+    # Autotag subparser
+    autotag_subparser = subparsers.add_parser(
+        "autotag",
+        help="Run autotag PDF document",
+    )
+    set_arguments(autotag_subparser, ["name", "key", "input", "output"], True, "The output PDF file")
+    autotag_subparser.set_defaults(func=run_autotag_subcommand)
+
+    # Parse arguments
     try:
-        parser = argparse.ArgumentParser(
-            description="Autotag PDF file using layout recognition",
-        )
-
-        subparsers = parser.add_subparsers(title="Commands", dest="command", required=True)
-
-        # Config subparser
-        config_subparser = subparsers.add_parser(
-            "config",
-            help="Extract config file for integration",
-        )
-        set_arguments(
-            config_subparser,
-            ["output"],
-            False,
-            "Output to save the config JSON file. Application output" + "is used if not provided",
-        )
-        config_subparser.set_defaults(func=run_config_subcommand)
-
-        # Autotag subparser
-        autotag_subparser = subparsers.add_parser(
-            "autotag",
-            help="Run autotag PDF document",
-        )
-        set_arguments(autotag_subparser, ["name", "key", "input", "output"], True, "The output PDF file")
-        autotag_subparser.set_defaults(func=run_autotag_subcommand)
-
-        # Parse arguments
         args = parser.parse_args()
+    except SystemExit as e:
+        if e.code == 0:
+            # This happens when --help is used, exit gracefully
+            sys.exit(0)
+        print("Failed to parse arguments. Please check the usage and try again.", file=sys.stderr)
+        sys.exit(e.code)
 
-        # Measure the time it takes to make all requests
-        start_time = time.time()  # Record the start time
+    # Measure the time it takes to make all requests
+    start_time = time.time()  # Record the start time
 
-        current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        print(f"\nProcessing started at: {current_time}")
+    current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    print(f"\nProcessing started at: {current_time}")
 
+    if hasattr(args, "func"):
         # Run subcommand
-        if hasattr(args, "func"):
+        try:
             args.func(args)
-        else:
-            parser.print_help()
+        except Exception as e:
+            print(traceback.format_exc(), file=sys.stderr)
+            print(f"Failed to run the program: {e}", file=sys.stderr)
+            sys.exit(1)
+    else:
+        parser.print_help()
 
-        end_time = time.time()  # Record the end time
-        elapsed_time = end_time - start_time  # Calculate the elapsed time
-        current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        print(f"\nProcessing finished at: {current_time}. Elapsed time: {elapsed_time:.2f} seconds")
-
-    except Exception as e:
-        print(traceback.format_exc(), file=sys.stderr)
-        print(f"Error: {e}")
-        sys.exit(1)
+    end_time = time.time()  # Record the end time
+    elapsed_time = end_time - start_time  # Calculate the elapsed time
+    current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    print(f"\nProcessing finished at: {current_time}. Elapsed time: {elapsed_time:.2f} seconds")
 
 
 if __name__ == "__main__":
