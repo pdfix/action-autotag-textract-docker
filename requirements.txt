@@ -3,4 +3,6 @@ amazon-textract-response-parser==1.0.3
 amazon-textract-textractor==1.8.5
 opencv-python==4.11.0.86
 pdfix-sdk==8.4.3
+requests==2.32.3
+types-requests==2.32.0.20250515
 tqdm==4.67.1

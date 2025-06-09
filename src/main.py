@@ -7,6 +7,7 @@ from datetime import datetime
 from pathlib import Path
 
 from autotag_pdf import autotag_pdf
+from image_update import DockerImageContainerUpdateChecker
 
 
 def set_arguments(
@@ -97,6 +98,10 @@ def main() -> None:
             sys.exit(0)
         print("Failed to parse arguments. Please check the usage and try again.", file=sys.stderr)
         sys.exit(e.code)
+
+    # Update of docker image checker
+    update_checker = DockerImageContainerUpdateChecker()
+    update_checker.check_for_image_updates()
 
     # Measure the time it takes to make all requests
     start_time = time.time()  # Record the start time
