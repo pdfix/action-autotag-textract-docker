@@ -90,7 +90,7 @@ def autotag_page(pdfix: Pdfix, page: PdfPage, doc_struct_elem: PdsStructElement,
         raise PdfixException(pdfix, "Unable to acquire page view")
 
     try:
-        with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as temp_file:
+        with tempfile.NamedTemporaryFile(suffix=".jpg") as temp_file:
             # Render the page as an image
             render_page(pdfix, page, page_view, cast(BinaryIO, temp_file))
             img_name = temp_file.name
