@@ -3,9 +3,9 @@
     "version": "v0.0.0",
     "actions": [
         {
-            "title": "AutoTag Textract",
+            "title": "AutoTag (Textract)",
             "name": "pdfix_autotag_textract",
-            "desc": "Automatically tag PDF using AWS Textract",
+            "desc": "Automatically tags PDF using AWS Textract.",
             "version": "v0.0.0",
             "icon": "autotag_textract",
             "category": "Accessibility",

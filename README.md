@@ -9,8 +9,7 @@ A Docker image that automatically tags a PDF file using AWS Textract.
   - [Getting Started](#getting-started)
   - [Run using Command Line Interface](#run-using-command-line-interface)
   - [How to pass AWS credentials](#how-to-pass-aws-credentials)
-  - [Run using REST API](#run-using-rest-api)
-    - [Exporting Configuration for Integration](#exporting-configuration-for-integration)
+  - [Exporting Configuration for Integration](#exporting-configuration-for-integration)
   - [License](#license)
   - [Help \& Support](#help--support)
 
@@ -21,7 +20,7 @@ To use this Docker application, you'll need to have Docker installed on your sys
 
 ## Run using Command Line Interface
 
-To run docker container as CLI you should share the folder with PDF to process using `-i` parameter. In this example it's current folder.
+To run docker container as CLI you should share the folder with PDF to process using `-v` parameter. In this example it's current folder.
 
 ```bash
 docker run -v $(pwd):/data -w /data --rm pdfix/autotag-textract:latest autotag -i input.pdf -o output.pdf
@@ -39,25 +38,27 @@ docker run --rm pdfix/autotag-textract:latest --help
 
 The access credentials can be passed by sharing the directory ~/.aws into the docker container. To do this add this parameter to the cli.
 See the AWS guide to setup your access keys locally.
+
 ```bash
 -v ~/.aws:/root/.aws
 ```
 
-## Run using REST API
-Comming soon. Please contact us.
+## Exporting Configuration for Integration
 
-### Exporting Configuration for Integration
 To export the configuration JSON file, use the following command:
+
 ```bash
 docker run -v $(pwd):/data -w /data --rm pdfix/autotag-textract:latest config -o config.json
 ```
 
 ## License
+
 - PDFix license https://pdfix.net/terms
 - AWS Textract 
 
 The trial version of the PDFix SDK may apply a watermark on the page and redact random parts of the PDF including the scanned image in the background. Contact us to get an evaluation or production license.
 
 ## Help & Support
+
 To obtain a PDFix SDK license or report an issue please contact us at support@pdfix.net.
 For more information visit https://pdfix.net
