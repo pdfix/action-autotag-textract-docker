@@ -26,13 +26,17 @@ def set_arguments(
     for name in names:
         match name:
             case "input":
-                parser.add_argument("--input", "-i", type=str, required=True, help="The input PDF file")
+                parser.add_argument("--input", "-i", type=str, required=True, help="The input PDF file.")
             case "key":
-                parser.add_argument("--key", type=str, help="PDFix license key")
+                parser.add_argument("--key", type=str, help="PDFix license key.")
             case "name":
-                parser.add_argument("--name", type=str, help="PDFix license name")
+                parser.add_argument("--name", type=str, help="PDFix license name.")
             case "output":
                 parser.add_argument("--output", "-o", type=str, required=required_output, help=output_help)
+            case "zoom":
+                parser.add_argument(
+                    "--zoom", type=float, default=2.0, help="Zoom level for the PDF page rendering (default: 2.0)."
+                )
 
 
 def run_config_subcommand(args) -> None:
@@ -58,8 +62,7 @@ def get_pdfix_config(path: str) -> None:
 
 
 def run_autotag_subcommand(args) -> None:
-    zoom = 2.0
-    autotag = AutotagUsingAmazonTextractRecognition(args.name, args.key, args.input, args.output, zoom)
+    autotag = AutotagUsingAmazonTextractRecognition(args.name, args.key, args.input, args.output, args.zoom)
     autotag.process_file()
 
 
@@ -79,7 +82,7 @@ def main() -> None:
         config_subparser,
         ["output"],
         False,
-        "Output to save the config JSON file. Application output" + "is used if not provided",
+        "Output to save the config JSON file. Application output is used if not provided.",
     )
     config_subparser.set_defaults(func=run_config_subcommand)
 
@@ -88,7 +91,7 @@ def main() -> None:
         "autotag",
         help="Run autotag PDF document",
     )
-    set_arguments(autotag_subparser, ["name", "key", "input", "output"], True, "The output PDF file")
+    set_arguments(autotag_subparser, ["name", "key", "input", "output", "zoom"], True, "The output PDF file.")
     autotag_subparser.set_defaults(func=run_autotag_subcommand)
 
     # Parse arguments
