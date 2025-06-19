@@ -9,7 +9,7 @@
             "version": "v0.0.0",
             "icon": "autotag_textract",
             "category": "Accessibility",
-            "program": "docker run -v \"${working_directory}:/data\" -v \"~/.aws:/root/.aws\" -w /data --rm pdfix/autotag-textract:latest tag --name \"${license_name}\" --key \"${license_key}\" -i \"/data/${input_pdf}\" -o \"/data/${output_pdf}\"",
+            "program": "docker run -v \"${working_directory}:/data\" -v \"~/.aws:/root/.aws\" -w /data --rm pdfix/autotag-textract:latest tag --name \"${license_name}\" --key \"${license_key}\" -i \"/data/${input_pdf}\" -o \"/data/${output_pdf}\" --zoom \"${zoom}\"",
             "args": [
                 {
                     "name": "input_pdf",
@@ -26,6 +26,48 @@
                     "type": "file_path",
                     "ext": "pdf",
                     "value": ""
+                },
+                {
+                    "title": "Rendering Zoom Level",
+                    "name": "zoom",
+                    "desc": "Pages are provided as images that are rendered using this zoom level",
+                    "type": "float",
+                    "value": "2.0"
+                }
+            ]
+        },
+        {
+            "title": "Create Layout Template JSON (Textract)",
+            "name": "pdfix_create_layout_template_json_textract",
+            "desc": "Automaticallycreates layout template json using AWS Textract, saving it as JSON file.",
+            "version": "v0.0.0",
+            "subtype": "create_layout_template_pdf_to_json",
+            "icon": "autotag_textract",
+            "category": "Accessibility",
+            "program": "docker run -v \"${working_directory}:/data\" -v \"~/.aws:/root/.aws\" -w /data --rm pdfix/autotag-textract:latest template --name \"${license_name}\" --key \"${license_key}\" -i \"/data/${input_pdf}\" -o \"/data/${output_json}\" --zoom \"${zoom}\"",
+            "args": [
+                {
+                    "name": "input_pdf",
+                    "desc": "Input PDF file",
+                    "flags": 2,
+                    "type": "file_path",
+                    "ext": "pdf",
+                    "value": ""
+                },
+                {
+                    "name": "output_json",
+                    "desc": "Output JSON file that is template json",
+                    "flags": 4,
+                    "type": "file_path",
+                    "ext": "json",
+                    "value": ""
+                },
+                {
+                    "title": "Rendering Zoom Level",
+                    "name": "zoom",
+                    "desc": "Pages are provided as images that are rendered using this zoom level",
+                    "type": "float",
+                    "value": "2.0"
                 }
             ]
         }

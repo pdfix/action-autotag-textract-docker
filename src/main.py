@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Optional
 
 from autotag import AutotagUsingAmazonTextractRecognition
+from create_template import CreateTemplateJsonUsingAmazonTextract
 from image_update import DockerImageContainerUpdateChecker
 
 
@@ -93,6 +94,39 @@ def autotagging_pdf(
         raise Exception("Input and output file must be PDF documents")
 
 
+def run_template_subcommand(args) -> None:
+    create_template_json(args.name, args.key, args.input, args.output, args.zoom)
+
+
+def create_template_json(
+    license_name: Optional[str],
+    license_key: Optional[str],
+    input_path: str,
+    output_path: str,
+    zoom: float,
+) -> None:
+    """
+    Creating template json for PDF document using provided arguments
+
+    Args:
+        license_name (Optional[str]): Name used in authorization in PDFix-SDK.
+        license_key (Optional[str]): Key used in authorization in PDFix-SDK.
+        input_path (str): Path to PDF document.
+        output_path (str): Path to JSON file.
+        zoom (float): Zoom level for rendering the page.
+    """
+    if zoom < 1.0 or zoom > 10.0:
+        raise Exception("Zoom level must between 1.0 and 10.0")
+
+    if input_path.lower().endswith(".pdf") and output_path.lower().endswith(".json"):
+        template_creator = CreateTemplateJsonUsingAmazonTextract(
+            license_name, license_key, input_path, output_path, zoom
+        )
+        template_creator.process_file()
+    else:
+        raise Exception("Input file must be PDF and output file must be JSON")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Autotag PDF file using layout recognition",
@@ -120,6 +154,14 @@ def main() -> None:
     )
     set_arguments(autotag_subparser, ["name", "key", "input", "output", "zoom"], True, "The output PDF file.")
     autotag_subparser.set_defaults(func=run_autotag_subcommand)
+
+    # Template subparser
+    template_subparser = subparsers.add_parser(
+        "template",
+        help="Create layout template JSON.",
+    )
+    set_arguments(template_subparser, ["name", "key", "input", "output", "zoom"], True, "The output JSON file.")
+    template_subparser.set_defaults(func=run_template_subcommand)
 
     # Parse arguments
     try:
