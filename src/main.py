@@ -7,7 +7,7 @@ import traceback
 from datetime import datetime
 from pathlib import Path
 
-from autotag_pdf import autotag_pdf
+from autotag import AutotagUsingAmazonTextractRecognition
 from image_update import DockerImageContainerUpdateChecker
 
 
@@ -59,7 +59,8 @@ def get_pdfix_config(path: str) -> None:
 
 def run_autotag_subcommand(args) -> None:
     zoom = 2.0
-    autotag_pdf(args.input, args.output, args.name, args.key, zoom)
+    autotag = AutotagUsingAmazonTextractRecognition(args.name, args.key, args.input, args.output, zoom)
+    autotag.process_file()
 
 
 def main() -> None:
