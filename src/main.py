@@ -6,6 +6,7 @@ import time
 import traceback
 from datetime import datetime
 from pathlib import Path
+from typing import Optional
 
 from autotag import AutotagUsingAmazonTextractRecognition
 from image_update import DockerImageContainerUpdateChecker
@@ -62,8 +63,34 @@ def get_pdfix_config(path: str) -> None:
 
 
 def run_autotag_subcommand(args) -> None:
-    autotag = AutotagUsingAmazonTextractRecognition(args.name, args.key, args.input, args.output, args.zoom)
-    autotag.process_file()
+    autotagging_pdf(args.name, args.key, args.input, args.output, args.zoom)
+
+
+def autotagging_pdf(
+    license_name: Optional[str],
+    license_key: Optional[str],
+    input_path: str,
+    output_path: str,
+    zoom: float,
+) -> None:
+    """
+    Autotagging PDF document with provided arguments
+
+    Args:
+        license_name (Optional[str]): Name used in authorization in PDFix-SDK.
+        license_key (Optional[str]): Key used in authorization in PDFix-SDK.
+        input_path (str): Path to PDF document.
+        output_path (str): Path to PDF document.
+        zoom (float): Zoom level for rendering the page.
+    """
+    if zoom < 1.0 or zoom > 10.0:
+        raise Exception("Zoom level must between 1.0 and 10.0")
+
+    if input_path.lower().endswith(".pdf") and output_path.lower().endswith(".pdf"):
+        autotag = AutotagUsingAmazonTextractRecognition(license_name, license_key, input_path, output_path, zoom)
+        autotag.process_file()
+    else:
+        raise Exception("Input and output file must be PDF documents")
 
 
 def main() -> None:

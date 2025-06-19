@@ -148,9 +148,9 @@ class TemplateJsonCreator:
                     element["type"] = "pde_text"
 
                 case constants.LAYOUT_LIST:
-                    element["type"] = "pde_list"
                     # TODO
                     self._create_list_items(layout, page_view)
+                    element["type"] = "pde_list"
 
                 case constants.LAYOUT_PAGE_NUMBER:
                     number_flag = self._is_footer_or_header(page_view, bbox)
