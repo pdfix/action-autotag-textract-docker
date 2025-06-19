@@ -148,8 +148,14 @@ class TemplateJsonCreator:
                     element["type"] = "pde_text"
 
                 case constants.LAYOUT_LIST:
-                    # TODO
-                    self._create_list_items(layout, page_view)
+                    # No info about type of list (bullets vs numbers)
+                    # element["numbering"] = "Circle"  # "Decimal"
+                    list_items = self._create_list_items(layout, page_view)
+                    element["element_template"] = {
+                        "template": {
+                            "element_create": [{"elements": list_items, "statement": "$if"}],
+                        },
+                    }
                     element["type"] = "pde_list"
 
                 case constants.LAYOUT_PAGE_NUMBER:
@@ -190,8 +196,49 @@ class TemplateJsonCreator:
         return elements
 
     def _create_list_items(self, list_layout: Layout, page_view: PdfPageView) -> list:
-        # TODO
-        return []
+        """
+        Prepare list item elements.
+
+        Args:
+            list_layout (Layout): AWS Textract Layout class containing all data from AI for list.
+            page_view (PdfPageView): The view of the PDF page used
+                for coordinate conversion.
+
+        Returns:
+            List of item elements with parameters.
+        """
+        items: list = []
+
+        page_w = page_view.GetDeviceWidth()
+        page_h = page_view.GetDeviceHeight()
+
+        for region in list_layout.children:
+            if not isinstance(region, Layout):
+                continue
+
+            layout: Layout = region
+
+            rect = PdfDevRect()
+            rect.left = int(layout.bbox.x * page_w)
+            rect.top = int(layout.bbox.y * page_h)
+            rect.right = int((layout.bbox.x + layout.bbox.width) * page_w)
+            rect.bottom = int((layout.bbox.y + layout.bbox.height) * page_h)
+            bbox = page_view.RectToPage(rect)
+
+            item: dict = {
+                "bbox": [str(bbox.left), str(bbox.bottom), str(bbox.right), str(bbox.top)],
+                "comment": f"List Item {round(layout.confidence * 100)}%",
+                "type": "pde_text",
+            }
+
+            # Only text included so we cannot mark bullets/numbers as:
+            # item["label"] = "label"
+
+            items.append(item)
+
+        # TODO sorting
+
+        return items
 
     def _create_table_cells(self, table_data: Table, page_view: PdfPageView) -> list:
         """
@@ -211,6 +258,9 @@ class TemplateJsonCreator:
         page_h = page_view.GetDeviceHeight()
 
         for cell_data in table_data.children:
+            if not isinstance(cell_data, TableCell):
+                continue
+
             cell: TableCell = cell_data
 
             cell_position: str = f"[{cell.row_index + 1}, {cell.col_index + 1}]"
@@ -234,10 +284,28 @@ class TemplateJsonCreator:
                 "type": "pde_cell",
             }
 
-            # # we are not able to acquire this information
+            # # We are not able to acquire this information
             # create_cell["cell_scope"] = "0"
 
             cells.append(create_cell)
+
+        # Fill table with empty cells
+        for row_index in range(table_data.row_count):
+            for col_index in range(table_data.column_count):
+                if not any(cell.row_index == row_index and cell.col_index == col_index for cell in table_data.children):
+                    empty_cell: dict = {
+                        "bbox": ["0", "0", "0", "0"],
+                        "cell_column": str(col_index + 1),
+                        "cell_column_span": "0",
+                        "cell_row": str(row_index + 1),
+                        "cell_row_span": "0",
+                        "cell_header": "false",
+                        "comment": f"Cell Pos: [{row_index + 1}, {col_index + 1}] Span: [0, 0] Added by processing",
+                        "type": "pde_cell",
+                    }
+                    cells.append(empty_cell)
+
+        # TODO sorting
 
         return cells
 
