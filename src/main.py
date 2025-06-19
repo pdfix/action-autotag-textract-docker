@@ -88,7 +88,7 @@ def main() -> None:
 
     # Autotag subparser
     autotag_subparser = subparsers.add_parser(
-        "autotag",
+        "tag",
         help="Run autotag PDF document",
     )
     set_arguments(autotag_subparser, ["name", "key", "input", "output", "zoom"], True, "The output PDF file.")

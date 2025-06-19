@@ -23,7 +23,7 @@ To use this Docker application, you'll need to have Docker installed on your sys
 To run docker container as CLI you should share the folder with PDF to process using `-v` parameter. In this example it's current folder.
 
 ```bash
-docker run -v $(pwd):/data -w /data --rm pdfix/autotag-textract:latest autotag -i input.pdf -o output.pdf
+docker run -v $(pwd):/data -w /data --rm pdfix/autotag-textract:latest tag -i input.pdf -o output.pdf
 ```
 
 The first run will pull the docker image, which may take some time. Make your own image for more advanced use.
