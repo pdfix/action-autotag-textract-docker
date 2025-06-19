@@ -10,7 +10,6 @@ from textractor.data.constants import (
 from textractor.entities.bbox import BoundingBox
 from textractor.entities.document import Document
 from textractor.entities.layout import Layout
-from textractor.entities.line import Line
 from textractor.entities.page import Page
 from textractor.entities.table import Table
 from textractor.entities.table_cell import TableCell
@@ -62,22 +61,11 @@ class ConvertDocumentToDictionary:
         if isinstance(object_to_convert, Document):
             return {
                 "pages": [self._convert_object(page) for page in object_to_convert.pages],
-                "layouts": [self._convert_object(layout) for layout in object_to_convert.layouts],
             }
 
         if isinstance(object_to_convert, Page):
             return {
-                "width": object_to_convert.width,
-                "height": object_to_convert.height,
                 "layout": [self._convert_object(layout) for layout in object_to_convert.layouts],
-                "lines": [self._convert_object(line) for line in object_to_convert.lines],
-            }
-
-        if isinstance(object_to_convert, Line):
-            return {
-                "text": object_to_convert.text,
-                "bbox": self._convert_object(object_to_convert.bbox),
-                "confidence": object_to_convert.confidence,
             }
 
         if isinstance(object_to_convert, Layout):
