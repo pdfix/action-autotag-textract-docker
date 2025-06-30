@@ -37,6 +37,9 @@ class AutotagUsingAmazonTextractRecognition:
 
     def __init__(
         self,
+        aws_access_key_id: str,
+        aws_secret_access_key: str,
+        aws_region: str,
         license_name: Optional[str],
         license_key: Optional[str],
         input_path: str,
@@ -47,12 +50,18 @@ class AutotagUsingAmazonTextractRecognition:
         Initialize class for tagging pdf.
 
         Args:
+            aws_access_key_id (str): AWS Access Key ID.
+            aws_secret_access_key (str): AWS Secret Access Key.
+            aws_region (str): AWS Region.
             license_name (Optional[str]): Pdfix SDK license name (e-mail).
             license_key (Optional[str]): Pdfix SDK license key.
             input_path (str): Path to PDF document.
             output_path (str): Path where tagged PDF should be saved.
             zoom (float): Zoom level for rendering the page.
         """
+        self.aws_access_key_id = aws_access_key_id
+        self.aws_secret_access_key = aws_secret_access_key
+        self.aws_region = aws_region
         self.license_name = license_name
         self.license_key = license_key
         self.input_path_str = input_path
@@ -140,11 +149,13 @@ class AutotagUsingAmazonTextractRecognition:
                 render_page(pdfix, page, page_view, cast(BinaryIO, temp_file))
                 temp_image_path = temp_file.name
 
+                # Run layout analysis
+                result = process_image(
+                    self.aws_access_key_id, self.aws_secret_access_key, self.aws_region, temp_image_path
+                )
+
                 # Store image for saving results
                 image = cv2.imread(temp_image_path)
-
-                # Run layout analysis
-                result = process_image(temp_image_path)
 
                 # Custom visualization of the results
                 custom_visualizer = VisualizeAmazonResults(result, image, id, page_number)

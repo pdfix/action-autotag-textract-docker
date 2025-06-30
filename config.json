@@ -9,7 +9,7 @@
             "version": "v0.0.0",
             "icon": "autotag_textract",
             "category": "Accessibility",
-            "program": "docker run -v \"${working_directory}:/data\" -v \"~/.aws:/root/.aws\" -w /data --rm pdfix/autotag-textract:latest tag --name \"${license_name}\" --key \"${license_key}\" -i \"/data/${input_pdf}\" -o \"/data/${output_pdf}\" --zoom \"${zoom}\"",
+            "program": "docker run -v \"${working_directory}:/data\" -v \"~/.aws:/root/.aws\" -w /data --rm pdfix/autotag-textract:latest tag --name \"${license_name}\" --key \"${license_key}\" -i \"/data/${input_pdf}\" -o \"/data/${output_pdf}\" --aws_id \"${aws_id}\" --aws_secret \"${aws_secret}\" --aws_region \"${aws_region}\" --zoom \"${zoom}\"",
             "args": [
                 {
                     "name": "input_pdf",
@@ -28,6 +28,74 @@
                     "value": ""
                 },
                 {
+                    "title": "AWS Access Key ID",
+                    "name": "aws_id",
+                    "desc": "AWS Access Key ID",
+                    "type": "string",
+                    "value": ""
+                },
+                {
+                    "title": "AWS Secret Access Key",
+                    "name": "aws_secret",
+                    "desc": "AWS Secret Access Key",
+                    "type": "string",
+                    "value": ""
+                },
+                {
+                    "title": "AWS Region",
+                    "name": "aws_region",
+                    "desc": "AWS Region with Textract service",
+                    "type": "string",
+                    "value": "us-east-1",
+                    "set": [
+                        {
+                            "value": "ap-northeast-2"
+                        },
+                        {
+                            "value": "ap-south-1"
+                        },
+                        {
+                            "value": "ap-southeast-1"
+                        },
+                        {
+                            "value": "ap-southeast-2"
+                        },
+                        {
+                            "value": "ca-central-1"
+                        },
+                        {
+                            "value": "eu-central-1"
+                        },
+                        {
+                            "value": "eu-west-1"
+                        },
+                        {
+                            "value": "eu-west-2"
+                        },
+                        {
+                            "value": "eu-west-3"
+                        },
+                        {
+                            "value": "us-east-1"
+                        },
+                        {
+                            "value": "us-east-2"
+                        },
+                        {
+                            "value": "us-gov-east-1"
+                        },
+                        {
+                            "value": "us-gov-west-1"
+                        },
+                        {
+                            "value": "us-west-1"
+                        },
+                        {
+                            "value": "us-west-2"
+                        }
+                    ]
+                },
+                {
                     "title": "Rendering Zoom Level",
                     "name": "zoom",
                     "desc": "Pages are provided as images that are rendered using this zoom level",
@@ -44,7 +112,7 @@
             "subtype": "create_layout_template_pdf_to_json",
             "icon": "autotag_textract",
             "category": "Accessibility",
-            "program": "docker run -v \"${working_directory}:/data\" -v \"~/.aws:/root/.aws\" -w /data --rm pdfix/autotag-textract:latest template --name \"${license_name}\" --key \"${license_key}\" -i \"/data/${input_pdf}\" -o \"/data/${output_json}\" --zoom \"${zoom}\"",
+            "program": "docker run -v \"${working_directory}:/data\" -v \"~/.aws:/root/.aws\" -w /data --rm pdfix/autotag-textract:latest template --name \"${license_name}\" --key \"${license_key}\" -i \"/data/${input_pdf}\" -o \"/data/${output_json}\" --aws_id \"${aws_id}\" --aws_secret \"${aws_secret}\" --aws_region \"${aws_region}\" --zoom \"${zoom}\"",
             "args": [
                 {
                     "name": "input_pdf",
@@ -61,6 +129,74 @@
                     "type": "file_path",
                     "ext": "json",
                     "value": ""
+                },
+                {
+                    "title": "AWS Access Key ID",
+                    "name": "aws_id",
+                    "desc": "AWS Access Key ID",
+                    "type": "string",
+                    "value": ""
+                },
+                {
+                    "title": "AWS Secret Access Key",
+                    "name": "aws_secret",
+                    "desc": "AWS Secret Access Key",
+                    "type": "string",
+                    "value": ""
+                },
+                {
+                    "title": "AWS Region",
+                    "name": "aws_region",
+                    "desc": "AWS Region with Textract service",
+                    "type": "string",
+                    "value": "us-east-1",
+                    "set": [
+                        {
+                            "value": "ap-northeast-2"
+                        },
+                        {
+                            "value": "ap-south-1"
+                        },
+                        {
+                            "value": "ap-southeast-1"
+                        },
+                        {
+                            "value": "ap-southeast-2"
+                        },
+                        {
+                            "value": "ca-central-1"
+                        },
+                        {
+                            "value": "eu-central-1"
+                        },
+                        {
+                            "value": "eu-west-1"
+                        },
+                        {
+                            "value": "eu-west-2"
+                        },
+                        {
+                            "value": "eu-west-3"
+                        },
+                        {
+                            "value": "us-east-1"
+                        },
+                        {
+                            "value": "us-east-2"
+                        },
+                        {
+                            "value": "us-gov-east-1"
+                        },
+                        {
+                            "value": "us-gov-west-1"
+                        },
+                        {
+                            "value": "us-west-1"
+                        },
+                        {
+                            "value": "us-west-2"
+                        }
+                    ]
                 },
                 {
                     "title": "Rendering Zoom Level",

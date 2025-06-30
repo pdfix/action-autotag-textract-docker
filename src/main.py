@@ -27,6 +27,12 @@ def set_arguments(
     """
     for name in names:
         match name:
+            case "aws-id":
+                parser.add_argument("--aws_id", type=str, required=True, help="AWS Access Key ID.")
+            case "aws-secret":
+                parser.add_argument("--aws_secret", type=str, required=True, help="AWS Secret Access Key.")
+            case "aws-region":
+                parser.add_argument("--aws_region", type=str, required=True, help="AWS Region.")
             case "input":
                 parser.add_argument("--input", "-i", type=str, required=True, help="The input PDF file.")
             case "key":
@@ -64,10 +70,15 @@ def get_pdfix_config(path: str) -> None:
 
 
 def run_autotag_subcommand(args) -> None:
-    autotagging_pdf(args.name, args.key, args.input, args.output, args.zoom)
+    autotagging_pdf(
+        args.aws_id, args.aws_secret, args.aws_region, args.name, args.key, args.input, args.output, args.zoom
+    )
 
 
 def autotagging_pdf(
+    aws_access_key_id: str,
+    aws_secret_access_key: str,
+    aws_region: str,
     license_name: Optional[str],
     license_key: Optional[str],
     input_path: str,
@@ -78,6 +89,9 @@ def autotagging_pdf(
     Autotagging PDF document with provided arguments
 
     Args:
+        aws_access_key_id (str): AWS Access Key ID.
+        aws_secret_access_key (str): AWS Secret Access Key.
+        aws_region (str): AWS Region.
         license_name (Optional[str]): Name used in authorization in PDFix-SDK.
         license_key (Optional[str]): Key used in authorization in PDFix-SDK.
         input_path (str): Path to PDF document.
@@ -88,17 +102,31 @@ def autotagging_pdf(
         raise Exception("Zoom level must between 1.0 and 10.0")
 
     if input_path.lower().endswith(".pdf") and output_path.lower().endswith(".pdf"):
-        autotag = AutotagUsingAmazonTextractRecognition(license_name, license_key, input_path, output_path, zoom)
+        autotag = AutotagUsingAmazonTextractRecognition(
+            aws_access_key_id,
+            aws_secret_access_key,
+            aws_region,
+            license_name,
+            license_key,
+            input_path,
+            output_path,
+            zoom,
+        )
         autotag.process_file()
     else:
         raise Exception("Input and output file must be PDF documents")
 
 
 def run_template_subcommand(args) -> None:
-    create_template_json(args.name, args.key, args.input, args.output, args.zoom)
+    create_template_json(
+        args.aws_id, args.aws_secret, args.aws_region, args.name, args.key, args.input, args.output, args.zoom
+    )
 
 
 def create_template_json(
+    aws_access_key_id: str,
+    aws_secret_access_key: str,
+    aws_region: str,
     license_name: Optional[str],
     license_key: Optional[str],
     input_path: str,
@@ -109,6 +137,9 @@ def create_template_json(
     Creating template json for PDF document using provided arguments
 
     Args:
+        aws_access_key_id (str): AWS Access Key ID.
+        aws_secret_access_key (str): AWS Secret Access Key.
+        aws_region (str): AWS Region.
         license_name (Optional[str]): Name used in authorization in PDFix-SDK.
         license_key (Optional[str]): Key used in authorization in PDFix-SDK.
         input_path (str): Path to PDF document.
@@ -120,7 +151,14 @@ def create_template_json(
 
     if input_path.lower().endswith(".pdf") and output_path.lower().endswith(".json"):
         template_creator = CreateTemplateJsonUsingAmazonTextract(
-            license_name, license_key, input_path, output_path, zoom
+            aws_access_key_id,
+            aws_secret_access_key,
+            aws_region,
+            license_name,
+            license_key,
+            input_path,
+            output_path,
+            zoom,
         )
         template_creator.process_file()
     else:
@@ -152,7 +190,12 @@ def main() -> None:
         "tag",
         help="Run autotag PDF document",
     )
-    set_arguments(autotag_subparser, ["name", "key", "input", "output", "zoom"], True, "The output PDF file.")
+    set_arguments(
+        autotag_subparser,
+        ["aws-id", "aws-secret", "aws-region", "name", "key", "input", "output", "zoom"],
+        True,
+        "The output PDF file.",
+    )
     autotag_subparser.set_defaults(func=run_autotag_subcommand)
 
     # Template subparser
@@ -160,7 +203,12 @@ def main() -> None:
         "template",
         help="Create layout template JSON.",
     )
-    set_arguments(template_subparser, ["name", "key", "input", "output", "zoom"], True, "The output JSON file.")
+    set_arguments(
+        template_subparser,
+        ["aws-id", "aws-secret", "aws-region", "name", "key", "input", "output", "zoom"],
+        True,
+        "The output JSON file.",
+    )
     template_subparser.set_defaults(func=run_template_subcommand)
 
     # Parse arguments

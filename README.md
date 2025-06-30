@@ -8,7 +8,6 @@ A Docker image that automatically tags a PDF file or creates template layout jso
   - [Table of Contents](#table-of-contents)
   - [Getting Started](#getting-started)
   - [Run a Docker Container ](#run-docker-container)
-    - [How to pass AWS credentials](#how-to-pass-aws-credentials)
     - [Run Docker Container for Autotagging](#run-docker-container-for-autotagging)
     - [Run Docker Container for Template JSON Creation](#run-docker-container-for-template-json-creation)
     - [Exporting Configuration for Integration](#exporting-configuration-for-integration)
@@ -23,21 +22,18 @@ To use this Docker application, you'll need to have Docker installed on your sys
 
 The first run will pull the docker image, which may take some time. Make your own image for more advanced use.
 
-### How to pass AWS credentials
-
-The access credentials can be passed by sharing the directory `~/.aws` into the docker container. To do this add this parameter to the cli.
-See the AWS guide to setup your access keys locally.
-
-```bash
--v ~/.aws:/root/.aws
-```
-
 ### Run Docker Container for Autotagging
 
 To run docker container as CLI you should share the folder with PDF to process using `-v` parameter. In this example it's current folder.
 
 ```bash
-docker run -v ~/.aws:/root/.aws -v $(pwd):/data -w /data --rm pdfix/autotag-textract:latest tag --name ${LICENSE_NAME} --key ${LICENSE_KEY} -i /data/input.pdf -o /data/output.pdf
+docker run -v ~/.aws:/root/.aws -v $(pwd):/data -w /data --rm pdfix/autotag-textract:latest tag --aws_id ${AWS_ID} --aws_secret ${AWS_SECRET} --aws_region ${AWS_REGION} --name ${LICENSE_NAME} --key ${LICENSE_KEY} -i /data/input.pdf -o /data/output.pdf
+```
+
+These arguments are required and are used to identify AWS account used for Textract.
+
+```bash
+--aws_id ${AWS_ID} --aws_secret ${AWS_SECRET} --aws_region ${AWS_REGION}
 ```
 
 These arguments are for an account-based PDFix license.
