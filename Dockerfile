@@ -26,5 +26,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY config.json /usr/autotag/
 COPY src/ /usr/autotag/src/
 
+# Create required folders
+RUN mkdir -p /usr/autotag/output \
+    && mkdir -p /data
+
 
 ENTRYPOINT ["/usr/autotag/venv/bin/python3", "/usr/autotag/src/main.py"]
