@@ -26,6 +26,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY config.json /usr/autotag/
 COPY src/ /usr/autotag/src/
 
+
 # Create required folders
 RUN mkdir -p /usr/autotag/output \
     && mkdir -p /data
