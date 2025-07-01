@@ -19,7 +19,7 @@ error() { echo -e "${RED}ERROR: $1${NC}"; }
 
 # Check if the required arguments are provided
 if [ "$#" -ne 3 ]; then
-    echo "Usage: $0 <AWS_ID> <AWS_SECRET> <AWS_REGIOM>"
+    echo "Usage: $0 <AWS_ID> <AWS_SECRET> <AWS_REGION>"
     exit 1
 fi
 
@@ -32,7 +32,7 @@ PLATFORM="--platform linux/amd64"
 TEMPORARY_DIRECTORY=".test"
 AWS_ID=$1
 AWS_SECRET=$2
-AWS_REGIOM=$3
+AWS_REGION=$3
 
 info "Building docker image..."
 docker build $PLATFORM --rm -t $DOCKER_IMAGE .
@@ -64,7 +64,7 @@ else
 fi
 
 info "Test #03: Run autotag"
-docker run --rm $PLATFORM -v $(pwd):/data -w /data $DOCKER_IMAGE tag --aws_id $AWS_ID --aws_secret $AWS_SECRET --aws_region $AWS_REGIOM -i examples/air_quality.pdf -o $TEMPORARY_DIRECTORY/air_quality-tagged.pdf > /dev/null
+docker run --rm $PLATFORM -v $(pwd):/data -w /data $DOCKER_IMAGE tag --aws_id $AWS_ID --aws_secret $AWS_SECRET --aws_region $AWS_REGION -i examples/air_quality.pdf -o $TEMPORARY_DIRECTORY/air_quality-tagged.pdf > /dev/null
 if [ -f "$(pwd)/$TEMPORARY_DIRECTORY/air_quality-tagged.pdf" ]; then
     success "passed"
 else
@@ -73,7 +73,7 @@ else
 fi
 
 info "Test #04: Run create template"
-docker run --rm $PLATFORM -v $(pwd):/data -w /data $DOCKER_IMAGE template --aws_id $AWS_ID --aws_secret $AWS_SECRET --aws_region $AWS_REGIOM -i examples/air_quality.pdf -o $TEMPORARY_DIRECTORY/air_quality.json > /dev/null
+docker run --rm $PLATFORM -v $(pwd):/data -w /data $DOCKER_IMAGE template --aws_id $AWS_ID --aws_secret $AWS_SECRET --aws_region $AWS_REGION -i examples/air_quality.pdf -o $TEMPORARY_DIRECTORY/air_quality.json > /dev/null
 if [ -f "$(pwd)/$TEMPORARY_DIRECTORY/air_quality.json" ]; then
     success "passed"
 else
