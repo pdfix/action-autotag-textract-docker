@@ -64,7 +64,7 @@ else
 fi
 
 info "Test #03: Run autotag"
-docker run --rm $PLATFORM -v $(pwd):/data -w /data $DOCKER_IMAGE tag --aws_id $AWS_ID --aws_secret $AWS_SECRET --aws_region $AWS_REGION -i examples/air_quality.pdf -o $TEMPORARY_DIRECTORY/air_quality-tagged.pdf > /dev/null
+docker run --rm $PLATFORM -v $(pwd):/data -w /data $DOCKER_IMAGE tag --aws_id "$AWS_ID" --aws_secret "$AWS_SECRET" --aws_region "$AWS_REGION" -i examples/air_quality.pdf -o $TEMPORARY_DIRECTORY/air_quality-tagged.pdf > /dev/null
 if [ -f "$(pwd)/$TEMPORARY_DIRECTORY/air_quality-tagged.pdf" ]; then
     success "passed"
 else
@@ -73,7 +73,7 @@ else
 fi
 
 info "Test #04: Run create template"
-docker run --rm $PLATFORM -v $(pwd):/data -w /data $DOCKER_IMAGE template --aws_id $AWS_ID --aws_secret $AWS_SECRET --aws_region $AWS_REGION -i examples/air_quality.pdf -o $TEMPORARY_DIRECTORY/air_quality.json > /dev/null
+docker run --rm $PLATFORM -v $(pwd):/data -w /data $DOCKER_IMAGE template --aws_id "$AWS_ID" --aws_secret "$AWS_SECRET" --aws_region "$AWS_REGION" -i examples/air_quality.pdf -o $TEMPORARY_DIRECTORY/air_quality.json > /dev/null
 if [ -f "$(pwd)/$TEMPORARY_DIRECTORY/air_quality.json" ]; then
     success "passed"
 else
