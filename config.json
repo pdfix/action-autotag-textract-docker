@@ -9,7 +9,7 @@
             "version": "v0.0.0",
             "icon": "autotag_textract",
             "category": "Accessibility",
-            "program": "docker run -v \"${working_directory}:/data\" -v \"~/.aws:/root/.aws\" -w /data --rm pdfix/autotag-textract:latest tag --name \"${license_name}\" --key \"${license_key}\" -i \"/data/${input_pdf}\" -o \"/data/${output_pdf}\" --aws_id \"${aws_id}\" --aws_secret \"${aws_secret}\" --aws_region \"${aws_region}\" --zoom \"${zoom}\"",
+            "program": "docker run -v \"${working_directory}:/data\" -w /data --rm pdfix/autotag-textract:latest tag --name \"${license_name}\" --key \"${license_key}\" -i \"/data/${input_pdf}\" -o \"/data/${output_pdf}\" --aws_id \"${aws_id}\" --aws_secret \"${aws_secret}\" --aws_region \"${aws_region}\" --zoom \"${zoom}\"",
             "args": [
                 {
                     "name": "input_pdf",
@@ -112,7 +112,7 @@
             "subtype": "create_layout_template_pdf_to_json",
             "icon": "autotag_textract",
             "category": "Accessibility",
-            "program": "docker run -v \"${working_directory}:/data\" -v \"~/.aws:/root/.aws\" -w /data --rm pdfix/autotag-textract:latest template --name \"${license_name}\" --key \"${license_key}\" -i \"/data/${input_pdf}\" -o \"/data/${output_json}\" --aws_id \"${aws_id}\" --aws_secret \"${aws_secret}\" --aws_region \"${aws_region}\" --zoom \"${zoom}\"",
+            "program": "docker run -v \"${working_directory}:/data\" -w /data --rm pdfix/autotag-textract:latest template --name \"${license_name}\" --key \"${license_key}\" -i \"/data/${input_pdf}\" -o \"/data/${output_json}\" --aws_id \"${aws_id}\" --aws_secret \"${aws_secret}\" --aws_region \"${aws_region}\" --zoom \"${zoom}\"",
             "args": [
                 {
                     "name": "input_pdf",
