@@ -1,0 +1,379 @@
+{
+  "metadata": {
+    "author": "AutoTag (Textract) v0.0.0",
+    "created": "2025-07-02",
+    "modified": "2025-07-02",
+    "notes": "Created using Amazon Textract and PDFix zoom: 2.0",
+    "sdk_version": "8.4.3",
+    "version": "1"
+  },
+  "template": {
+    "element_create": [
+      {
+        "comment": "Page 1",
+        "elements": [
+          {
+            "bbox": [
+              "409.0",
+              "676.0",
+              "589.5",
+              "761.5"
+            ],
+            "comment": "figure 95%",
+            "type": "pde_image"
+          },
+          {
+            "bbox": [
+              "51.5",
+              "680.5",
+              "377.0",
+              "728.5"
+            ],
+            "comment": "title 79%",
+            "tag": "Title",
+            "type": "pde_text"
+          },
+          {
+            "bbox": [
+              "50.5",
+              "557.0",
+              "568.0",
+              "638.5"
+            ],
+            "comment": "text 96%",
+            "type": "pde_text"
+          },
+          {
+            "bbox": [
+              "51.5",
+              "471.0",
+              "214.5",
+              "490.5"
+            ],
+            "comment": "header 84%",
+            "heading": "h1",
+            "type": "pde_text"
+          },
+          {
+            "bbox": [
+              "49.5",
+              "421.0",
+              "571.5",
+              "459.5"
+            ],
+            "comment": "text 95%",
+            "type": "pde_text"
+          },
+          {
+            "bbox": [
+              "50.0",
+              "343.0",
+              "568.5",
+              "407.5"
+            ],
+            "comment": "text 95%",
+            "type": "pde_text"
+          },
+          {
+            "bbox": [
+              "405.5",
+              "236.0",
+              "574.0",
+              "354.0"
+            ],
+            "comment": "figure 94%",
+            "type": "pde_image"
+          },
+          {
+            "bbox": [
+              "49.5",
+              "281.0",
+              "297.0",
+              "319.0"
+            ],
+            "comment": "header 77%",
+            "heading": "h1",
+            "type": "pde_text"
+          },
+          {
+            "bbox": [
+              "50.0",
+              "258.0",
+              "375.5",
+              "271.0"
+            ],
+            "comment": "header 62%",
+            "heading": "h1",
+            "type": "pde_text"
+          },
+          {
+            "bbox": [
+              "51.0",
+              "54.0",
+              "557.5",
+              "248.5"
+            ],
+            "comment": "list 92%",
+            "element_template": {
+              "template": {
+                "element_create": [
+                  {
+                    "elements": [
+                      {
+                        "bbox": [
+                          "52.0",
+                          "184.5",
+                          "548.5",
+                          "247.5"
+                        ],
+                        "comment": "List Item 97%",
+                        "type": "pde_text"
+                      },
+                      {
+                        "bbox": [
+                          "52.0",
+                          "120.0",
+                          "556.5",
+                          "169.5"
+                        ],
+                        "comment": "List Item 96%",
+                        "type": "pde_text"
+                      },
+                      {
+                        "bbox": [
+                          "52.0",
+                          "55.0",
+                          "555.5",
+                          "104.5"
+                        ],
+                        "comment": "List Item 95%",
+                        "type": "pde_text"
+                      }
+                    ],
+                    "statement": "$if"
+                  }
+                ]
+              }
+            },
+            "type": "pde_list"
+          }
+        ],
+        "query": {
+          "$and": [
+            {
+              "$page_num": 1
+            }
+          ]
+        },
+        "statement": "$if"
+      },
+      {
+        "comment": "Page 2",
+        "elements": [
+          {
+            "bbox": [
+              "57.5",
+              "705.5",
+              "419.5",
+              "744.0"
+            ],
+            "comment": "title 71%",
+            "tag": "Title",
+            "type": "pde_text"
+          },
+          {
+            "bbox": [
+              "57.5",
+              "619.0",
+              "562.5",
+              "692.0"
+            ],
+            "comment": "text 99%",
+            "type": "pde_text"
+          },
+          {
+            "bbox": [
+              "57.5",
+              "529.5",
+              "563.0",
+              "602.0"
+            ],
+            "comment": "text 95%",
+            "type": "pde_text"
+          },
+          {
+            "bbox": [
+              "57.0",
+              "428.0",
+              "466.0",
+              "489.5"
+            ],
+            "comment": "header 90%",
+            "heading": "h1",
+            "type": "pde_text"
+          },
+          {
+            "bbox": [
+              "57.5",
+              "363.0",
+              "555.0",
+              "418.5"
+            ],
+            "comment": "text 96%",
+            "type": "pde_text"
+          },
+          {
+            "bbox": [
+              "58.0",
+              "138.5",
+              "538.0",
+              "346.0"
+            ],
+            "comment": "list 95%",
+            "element_template": {
+              "template": {
+                "element_create": [
+                  {
+                    "elements": [
+                      {
+                        "bbox": [
+                          "59.0",
+                          "289.0",
+                          "532.5",
+                          "345.0"
+                        ],
+                        "comment": "List Item 98%",
+                        "type": "pde_text"
+                      },
+                      {
+                        "bbox": [
+                          "59.5",
+                          "259.0",
+                          "533.0",
+                          "270.0"
+                        ],
+                        "comment": "List Item 97%",
+                        "type": "pde_text"
+                      },
+                      {
+                        "bbox": [
+                          "59.0",
+                          "214.5",
+                          "537.0",
+                          "240.0"
+                        ],
+                        "comment": "List Item 97%",
+                        "type": "pde_text"
+                      },
+                      {
+                        "bbox": [
+                          "59.0",
+                          "139.5",
+                          "536.5",
+                          "195.0"
+                        ],
+                        "comment": "List Item 96%",
+                        "type": "pde_text"
+                      }
+                    ],
+                    "statement": "$if"
+                  }
+                ]
+              }
+            },
+            "type": "pde_list"
+          },
+          {
+            "bbox": [
+              "469.0",
+              "63.0",
+              "606.0",
+              "132.0"
+            ],
+            "comment": "figure 85%",
+            "type": "pde_image"
+          },
+          {
+            "bbox": [
+              "298.5",
+              "30.5",
+              "371.0",
+              "72.0"
+            ],
+            "comment": "figure 90%",
+            "type": "pde_image"
+          },
+          {
+            "bbox": [
+              "174.5",
+              "48.5",
+              "199.5",
+              "71.5"
+            ],
+            "comment": "figure 84%",
+            "type": "pde_image"
+          },
+          {
+            "bbox": [
+              "198.0",
+              "47.5",
+              "267.0",
+              "69.5"
+            ],
+            "comment": "footer 80%",
+            "flag": "footer|artifact",
+            "type": "pde_text"
+          },
+          {
+            "bbox": [
+              "379.0",
+              "33.5",
+              "467.5",
+              "65.5"
+            ],
+            "comment": "footer 84%",
+            "flag": "footer|artifact",
+            "type": "pde_text"
+          },
+          {
+            "bbox": [
+              "176.0",
+              "31.5",
+              "268.5",
+              "44.0"
+            ],
+            "comment": "footer 79%",
+            "flag": "footer|artifact",
+            "type": "pde_text"
+          },
+          {
+            "bbox": [
+              "40.5",
+              "12.0",
+              "561.0",
+              "25.0"
+            ],
+            "comment": "footer 93%",
+            "flag": "footer|artifact",
+            "type": "pde_text"
+          }
+        ],
+        "query": {
+          "$and": [
+            {
+              "$page_num": 2
+            }
+          ]
+        },
+        "statement": "$if"
+      }
+    ],
+    "pagemap": [
+      {
+        "graphic_table_detect": "0",
+        "statement": "$if",
+        "text_table_detect": "0"
+      }
+    ]
+  }
+}

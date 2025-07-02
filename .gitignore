@@ -9,7 +9,7 @@ Thumbs.db
 # Cached file for image update check
 .local_data.json
 
-# temporary images
+# Temporary images
 tmp_*
 *.jpg
 
