@@ -69,7 +69,7 @@ class VisualizeAmazonResults:
 
         # Save the image to filesystem
         path: Path = Path(__file__).parent.joinpath(f"../output/{self.id}-{self.page_number}.jpg").resolve()
-        cv2.imwrite(path, self.image)
+        cv2.imwrite(str(path), self.image)
 
     def _visualize_table_cells(self, page_view: PdfPageView, table_layout: Layout) -> None:
         """

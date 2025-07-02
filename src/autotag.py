@@ -198,7 +198,7 @@ class AutotagUsingAmazonTextractRecognition:
         elif isinstance(images, list) and len(images) > 0:
             for index, image in enumerate(images):
                 if isinstance(image, Image.Image):
-                    image_path: Path = (
+                    image_path = (
                         Path(__file__).parent.joinpath(f"../output/{id}-{page_number}-aws_result_{index}.jpg").resolve()
                     )
                     image.save(image_path)
