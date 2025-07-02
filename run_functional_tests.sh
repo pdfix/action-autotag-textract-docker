@@ -24,9 +24,9 @@ fi
 echo "✅ Activating virtual environment..."
 source "$VENV_DIR/bin/activate"
 
-echo "⬇️ Installing pytest..."
+echo "⬇️ Installing requirements..."
 pip install --quiet --upgrade pip
-pip install --quiet pytest
+pip install --quiet -r tests/functional/requirements_for_tests.txt
 
 export PYTHONPATH="$(pwd)"
 

@@ -1,7 +1,7 @@
 import subprocess
 from pathlib import Path
 
-from tests.functional.helpers import compare_pdfs_binary
+from tests.functional.helpers import compare_tagged_pdfs
 
 
 def test_tag_subcommand(docker_image: str, input_pdf: Path, aws_env: dict, sdk_env: dict, tmp_path: Path) -> None:
@@ -42,7 +42,7 @@ def test_tag_subcommand(docker_image: str, input_pdf: Path, aws_env: dict, sdk_e
 
     assert result.returncode == 0, f"❌ Process failed: {result.stderr}"
     assert output_file.exists(), "❌ Tagged output PDF not found."
-    assert compare_pdfs_binary(output_file, expected_output_file), "❌ PDF was not tagged as expected."
+    assert compare_tagged_pdfs(output_file, expected_output_file), "❌ PDF was not tagged as expected."
 
 
 # TODO - add test that compares free SDK version output
