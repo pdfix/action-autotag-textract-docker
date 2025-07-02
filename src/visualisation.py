@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 
 import cv2
@@ -69,7 +68,7 @@ class VisualizeAmazonResults:
             self._print_text(rect, layout.layout_type, layout.confidence, black_color, green_color)
 
         # Save the image to filesystem
-        path = os.path.join(Path(__file__).parent.absolute(), f"../output/{self.id}-{self.page_number}.jpg")
+        path: Path = Path(__file__).parent.joinpath(f"../output/{self.id}-{self.page_number}.jpg").resolve()
         cv2.imwrite(path, self.image)
 
     def _visualize_table_cells(self, page_view: PdfPageView, table_layout: Layout) -> None:

@@ -1,5 +1,4 @@
 import argparse
-import os
 import sys
 import threading
 import time
@@ -59,7 +58,7 @@ def get_pdfix_config(path: str) -> None:
     Args:
         path (string): Destination path for config.json file
     """
-    config_path = os.path.join(Path(__file__).parent.absolute(), "../config.json")
+    config_path: Path = Path(__file__).parent.joinpath("../config.json").resolve()
 
     with open(config_path, "r", encoding="utf-8") as file:
         if path is None:

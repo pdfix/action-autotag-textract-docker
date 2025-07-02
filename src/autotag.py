@@ -1,5 +1,4 @@
 import json
-import os
 import tempfile
 from pathlib import Path
 from typing import Any, BinaryIO, Optional, cast
@@ -107,7 +106,7 @@ class AutotagUsingAmazonTextractRecognition:
         template_json_dict: dict = template_json_creator.create_json_dict_for_document(self.zoom)
 
         # Save template to file
-        template_path = os.path.join(Path(__file__).parent.absolute(), f"../output/{id}-template_json.json")
+        template_path: Path = Path(__file__).parent.joinpath("../output/{id}-template_json.json").resolve()
         with open(template_path, "w") as file:
             file.write(json.dumps(template_json_dict, indent=2))
 
@@ -192,15 +191,15 @@ class AutotagUsingAmazonTextractRecognition:
         images: Any = document.layouts.visualize(True, False, True, 0.5)
 
         if isinstance(images, Image.Image):
-            image_path = os.path.join(
-                Path(__file__).parent.absolute(), f"../output/{id}-{page_number}-aws_result_0.jpg"
+            image_path: Path = (
+                Path(__file__).parent.joinpath(f"../output/{id}-{page_number}-aws_result_0.jpg").resolve()
             )
             images.save(image_path)
         elif isinstance(images, list) and len(images) > 0:
             for index, image in enumerate(images):
                 if isinstance(image, Image.Image):
-                    image_path = os.path.join(
-                        Path(__file__).parent.absolute(), f"../output/{id}-{page_number}-aws_result_{index}.jpg"
+                    image_path: Path = (
+                        Path(__file__).parent.joinpath(f"../output/{id}-{page_number}-aws_result_{index}.jpg").resolve()
                     )
                     image.save(image_path)
                 else:

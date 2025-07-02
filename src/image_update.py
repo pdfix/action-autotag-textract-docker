@@ -46,7 +46,7 @@ class DockerImageContainerUpdateChecker:
         Returns:
             The current version of the Docker image.
         """
-        config_path = os.path.join(Path(__file__).parent.absolute(), f"../{self.CONFIG_FILE}")
+        config_path: Path = Path(__file__).parent.joinpath(f"../{self.CONFIG_FILE}").resolve()
         try:
             with open(config_path, "r", encoding="utf-8") as f:
                 config = json.load(f)

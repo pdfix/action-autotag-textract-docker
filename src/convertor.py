@@ -1,5 +1,4 @@
 import json
-import os
 from pathlib import Path
 from typing import Any
 
@@ -38,7 +37,7 @@ class ConvertDocumentToDictionary:
         Save the Document as dictionary into JSON file.
         """
         dictionary = self._convert()
-        path = os.path.join(Path(__file__).parent.absolute(), f"../output/{self.id}-{self.page_number}.json")
+        path: Path = Path(__file__).parent.joinpath(f"../output/{self.id}-{self.page_number}.json").resolve()
 
         with open(path, "w", encoding="utf-8") as result_file:
             json.dump(dictionary, result_file, indent=2)
