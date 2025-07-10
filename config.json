@@ -5,10 +5,11 @@
         {
             "title": "AutoTag (Textract)",
             "name": "pdfix_autotag_textract",
-            "desc": "Automatically tags PDF using AWS Textract.",
+            "desc": "Automatically tags PDF using AWS Textract [Cloud]",
             "version": "v0.0.0",
             "icon": "autotag_textract",
             "category": "Accessibility",
+            "local": "False",
             "program": "docker run -v \"${working_directory}:/data\" -w /data --rm pdfix/autotag-textract:latest tag --name \"${license_name}\" --key \"${license_key}\" -i \"/data/${input_pdf}\" -o \"/data/${output_pdf}\" --aws_id \"${aws_id}\" --aws_secret \"${aws_secret}\" --aws_region \"${aws_region}\" --zoom \"${zoom}\"",
             "args": [
                 {
@@ -107,11 +108,12 @@
         {
             "title": "Create Layout Template JSON (Textract)",
             "name": "pdfix_create_layout_template_json_textract",
-            "desc": "Automaticallycreates layout template json using AWS Textract, saving it as JSON file.",
+            "desc": "Automatically creates layout template json using Paddle, saving it as JSON file [Cloud]",
             "version": "v0.0.0",
-            "subtype": "create_layout_template_pdf_to_json",
-            "icon": "autotag_textract",
+            "icon": "template_textract",
             "category": "Accessibility",
+            "subtype": "create_layout_template_pdf_to_json",
+            "local": "False",
             "program": "docker run -v \"${working_directory}:/data\" -w /data --rm pdfix/autotag-textract:latest template --name \"${license_name}\" --key \"${license_key}\" -i \"/data/${input_pdf}\" -o \"/data/${output_json}\" --aws_id \"${aws_id}\" --aws_secret \"${aws_secret}\" --aws_region \"${aws_region}\" --zoom \"${zoom}\"",
             "args": [
                 {
