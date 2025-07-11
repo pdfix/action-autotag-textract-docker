@@ -110,7 +110,7 @@
             "name": "pdfix_create_layout_template_json_textract",
             "desc": "Automatically creates layout template json using Paddle, saving it as JSON file [Cloud]",
             "version": "v0.0.0",
-            "icon": "template_textract",
+            "icon": "rtt",
             "category": "Accessibility",
             "subtype": "create_layout_template_pdf_to_json",
             "local": "False",
