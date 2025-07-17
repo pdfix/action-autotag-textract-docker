@@ -35,7 +35,7 @@ AWS_SECRET=$2
 AWS_REGION=$3
 
 info "Building docker image..."
-docker build $PLATFORM --rm -t $DOCKER_IMAGE .
+docker build $PLATFORM -t $DOCKER_IMAGE .
 
 if [ -d "$(pwd)/$TEMPORARY_DIRECTORY" ]; then
     rm -rf $(pwd)/$TEMPORARY_DIRECTORY
