@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "author": "AutoTag (Textract) v0.0.0",
-    "created": "2025-07-02",
-    "modified": "2025-07-02",
+    "author": "AutoTag (Textract) v0.3.8",
+    "created": "2025-07-24",
+    "modified": "2025-07-24",
     "notes": "Created using Amazon Textract and PDFix zoom: 2.0",
     "sdk_version": "8.4.3",
     "version": "1"
