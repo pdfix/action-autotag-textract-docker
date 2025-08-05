@@ -284,7 +284,11 @@ class TemplateJsonCreator:
 
             cell: TableCell = cell_data
 
-            cell_position: str = f"[{cell.row_index + 1}, {cell.col_index + 1}]"
+            # AWS returns these as numbers instead of indexes
+            cell_row: int = cell.row_index
+            cell_column: int = cell.col_index
+
+            cell_position: str = f"[{cell_row}, {cell_column}]"
             cell_span: str = f"[{cell.row_span}, {cell.col_span}]"
 
             rect = PdfDevRect()
@@ -296,9 +300,9 @@ class TemplateJsonCreator:
 
             create_cell: dict = {
                 "bbox": [str(bbox.left), str(bbox.bottom), str(bbox.right), str(bbox.top)],
-                "cell_column": str(cell.col_index + 1),
+                "cell_column": str(cell_column),
                 "cell_column_span": str(cell.col_span),
-                "cell_row": str(cell.row_index + 1),
+                "cell_row": str(cell_row),
                 "cell_row_span": str(cell.row_span),
                 "cell_header": cell.is_column_header,
                 "comment": f"Cell Pos: {cell_position} Span: {cell_span} Confidence: {round(cell.confidence * 100)}%",
@@ -313,15 +317,19 @@ class TemplateJsonCreator:
         # Fill table with empty cells
         for row_index in range(table_data.row_count):
             for col_index in range(table_data.column_count):
-                if not any(cell.row_index == row_index and cell.col_index == col_index for cell in table_data.children):
+                row_number: int = row_index + 1
+                column_number: int = col_index + 1
+                if not any(
+                    cell.row_index == row_number and cell.col_index == column_number for cell in table_data.children
+                ):
                     empty_cell: dict = {
                         "bbox": ["0", "0", "0", "0"],
-                        "cell_column": str(col_index + 1),
+                        "cell_column": str(column_number),
                         "cell_column_span": "0",
-                        "cell_row": str(row_index + 1),
+                        "cell_row": str(row_number),
                         "cell_row_span": "0",
                         "cell_header": "false",
-                        "comment": f"Cell Pos: [{row_index + 1}, {col_index + 1}] Span: [0, 0] Added by processing",
+                        "comment": f"Cell Pos: [{row_number}, {column_number}] Span: [0, 0] Added by processing",
                         "type": "pde_cell",
                     }
                     cells.append(empty_cell)
