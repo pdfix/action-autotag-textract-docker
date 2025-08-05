@@ -46,7 +46,15 @@ class TemplateJsonCreator:
             # we are creating first one always so it is always "1"
             "version": "1",
         }
-        page_map: list = [{"graphic_table_detect": "0", "statement": "$if", "text_table_detect": "0"}]
+        page_map: list = [
+            {
+                "graphic_table_detect": "0",
+                "statement": "$if",
+                "text_table_detect": "0",
+                "label_image_detect": "0",
+                "label_word_detect": "0",
+            }
+        ]
 
         return {
             "metadata": metadata,
@@ -136,14 +144,17 @@ class TemplateJsonCreator:
             # https://docs.aws.amazon.com/textract/latest/dg/layoutresponse.html
             match layout.layout_type:
                 case constants.LAYOUT_FIGURE:
+                    element["flag"] = "no_join|no_split"
                     element["type"] = "pde_image"
 
                 case constants.LAYOUT_FOOTER:
-                    element["flag"] = "footer|artifact"
+                    element["flag"] = "footer|artifact|no_join|no_split"
+                    element["text_flag"] = "no_new_line"
                     element["type"] = "pde_text"
 
                 case constants.LAYOUT_HEADER:
-                    element["flag"] = "header|artifact"
+                    element["flag"] = "header|artifact|no_join|no_split"
+                    element["text_flag"] = "no_new_line"
                     element["type"] = "pde_text"
 
                 case constants.LAYOUT_LIST:
@@ -155,15 +166,19 @@ class TemplateJsonCreator:
                             "element_create": [{"elements": list_items, "statement": "$if"}],
                         },
                     }
+                    element["flag"] = "no_join|no_split"
                     element["type"] = "pde_list"
 
                 case constants.LAYOUT_PAGE_NUMBER:
                     number_flag = self._is_footer_or_header(page_view, bbox)
-                    element["flag"] = f"{number_flag}|artifact"
+                    element["flag"] = f"{number_flag}|artifact|no_join|no_split"
+                    element["text_flag"] = "no_new_line"
                     element["type"] = "pde_text"
 
                 case constants.LAYOUT_SECTION_HEADER:
                     element["heading"] = "h1"
+                    element["flag"] = "no_join|no_split"
+                    element["text_flag"] = "no_new_line"
                     element["type"] = "pde_text"
 
                 case constants.LAYOUT_TABLE:
@@ -176,16 +191,23 @@ class TemplateJsonCreator:
                     }
                     element["row_num"] = table_data.row_count
                     element["col_num"] = table_data.column_count
+                    element["flag"] = "no_join|no_split"
                     element["type"] = "pde_table"
 
                 case constants.LAYOUT_TEXT:
+                    element["flag"] = "no_join|no_split"
+                    element["text_flag"] = "no_new_line"
                     element["type"] = "pde_text"
 
                 case constants.LAYOUT_TITLE:
                     element["tag"] = "Title"
+                    element["flag"] = "no_join|no_split"
+                    element["text_flag"] = "no_new_line"
                     element["type"] = "pde_text"
 
                 case _:
+                    element["flag"] = "no_join|no_split"
+                    element["text_flag"] = "no_new_line"
                     element["type"] = "pde_text"
 
             elements.append(element)
