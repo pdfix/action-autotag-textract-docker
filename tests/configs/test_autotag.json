@@ -1,9 +1,0 @@
-{
-    "command": "docker run -v {temp_dir}:/data -w /data --rm pdfix/autotag-textract:v0.3.8 tag --name {pdfix_name} --key {pdfix_key} --aws_id {aws_id} --aws_secret {aws_secret} --aws_region {aws_region} -i {input_file} -o {output_file}",
-    "input_folder": "../action-autotag-textract-docker/examples/",
-    "input_extension": ".pdf",
-    "output_folder": "../action-autotag-textract-docker/tests/outputs/",
-    "output_extension": ".pdf",
-    "error_folder": "../tests/errors/",
-    "compare_method": "pdf_tags"
-}
