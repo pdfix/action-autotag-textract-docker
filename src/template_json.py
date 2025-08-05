@@ -137,7 +137,7 @@ class TemplateJsonCreator:
 
             bbox = page_view.RectToPage(rect)
             element["bbox"] = [str(bbox.left), str(bbox.bottom), str(bbox.right), str(bbox.top)]
-            label = layout.layout_type.split("_")[-1].lower()
+            label = layout.layout_type.replace("LAYOUT_", "").replace("_", " ").lower()
             element["comment"] = f"{label} {round(layout.confidence * 100)}%"
 
             # List of types:
