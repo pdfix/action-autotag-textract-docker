@@ -309,8 +309,8 @@ class TemplateJsonCreator:
                 "type": "pde_cell",
             }
 
-            # # We are not able to acquire this information
-            # create_cell["cell_scope"] = "0"
+            if cell.is_column_header:
+                create_cell["cell_scope"] = "column"
 
             cells.append(create_cell)
 
