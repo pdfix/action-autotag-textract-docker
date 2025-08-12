@@ -1,6 +1,6 @@
-# Autotag Textract
+# PDF Accesibility Amazon Textract
 
-A Docker image that automatically tags a PDF file or creates template layout json for it using AWS Textract.
+A Docker image that automatically tags a PDF file or creates template layout json for it using Amazon Textract.
 
 ## Table of Contents
 
@@ -68,8 +68,8 @@ docker run -v $(pwd):/data -w /data --rm pdfix/autotag-textract:latest config -o
 
 ## License
 
-- PDFix license https://pdfix.net/terms
-- AWS Textract 
+- [PDFix license](https://pdfix.net/terms)
+- [Amazon Textract](https://github.com/aws-samples/amazon-textract-textractor/blob/master/LICENSE)
 
 The trial version of the PDFix SDK may apply a watermark on the page and redact random parts of the PDF including the scanned image in the background. Contact us to get an evaluation or production license.
 
