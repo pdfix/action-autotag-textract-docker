@@ -1,11 +1,11 @@
 {
-    "name": "Autotag PDF Textract",
+    "name": "PDF Accessibility Amazon Textract",
     "version": "v0.0.0",
     "actions": [
         {
             "title": "AutoTag (Textract)",
             "name": "pdfix_autotag_textract",
-            "desc": "Automatically tags PDF using AWS Textract [Cloud]",
+            "desc": "Automatically tags PDF using Amazon Textract [Cloud]",
             "version": "v0.0.0",
             "icon": "autotag_textract",
             "category": "Accessibility",
@@ -108,7 +108,7 @@
         {
             "title": "Create Layout Template JSON (Textract)",
             "name": "pdfix_create_layout_template_json_textract",
-            "desc": "Automatically creates layout template json using Paddle, saving it as JSON file [Cloud]",
+            "desc": "Automatically creates layout template json using Amazon Textract, saving it as JSON file [Cloud]",
             "version": "v0.0.0",
             "icon": "rtt",
             "category": "Accessibility",
