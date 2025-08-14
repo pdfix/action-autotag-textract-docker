@@ -1,4 +1,6 @@
 import json
+import sys
+import traceback
 from pathlib import Path
 from typing import Any
 
@@ -36,11 +38,15 @@ class ConvertDocumentToDictionary:
         """
         Save the Document as dictionary into JSON file.
         """
-        dictionary = self._convert()
-        path: Path = Path(__file__).parent.joinpath(f"../output/{self.id}-{self.page_number}.json").resolve()
+        try:
+            dictionary = self._convert()
+            path: Path = Path(__file__).parent.joinpath(f"../output/{self.id}-{self.page_number}.json").resolve()
 
-        with open(path, "w", encoding="utf-8") as result_file:
-            json.dump(dictionary, result_file, indent=2)
+            with open(path, "w", encoding="utf-8") as result_file:
+                json.dump(dictionary, result_file, indent=2)
+        except Exception as e:
+            print(traceback.format_exc(), file=sys.stderr)
+            print(f"Failed to save custom dictionary conversion of Amazon Textract data: {e}", file=sys.stderr)
 
     def _convert(self) -> dict:
         """
@@ -106,4 +112,12 @@ class ConvertDocumentToDictionary:
         if isinstance(object_to_convert, list):
             return [self._convert_object(item) for item in object_to_convert]
 
-        return object_to_convert
+        if (
+            isinstance(object_to_convert, int)
+            or isinstance(object_to_convert, float)
+            or isinstance(object_to_convert, str)
+            or isinstance(object_to_convert, bool)
+        ):
+            return object_to_convert
+        else:
+            return str(type(object_to_convert))

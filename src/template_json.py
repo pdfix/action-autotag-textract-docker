@@ -75,7 +75,7 @@ class TemplateJsonCreator:
             page_view (PdfPageView): The view of the PDF page used for coordinate conversion.
             zoom (float): Zoom level that page was rendered with.
         """
-        elements: list = self._create_json_for_elements(result, page_view, page_number)
+        elements: list = self._create_json_for_elements(result, page_view)
 
         json_for_page = {
             "comment": f"Page {page_number}",
@@ -103,7 +103,7 @@ class TemplateJsonCreator:
             print(f"Error reading {self.CONFIG_FILE}: {e}", file=sys.stderr)
             return "unknown"
 
-    def _create_json_for_elements(self, result: Document, page_view: PdfPageView, page_number: int) -> list:
+    def _create_json_for_elements(self, result: Document, page_view: PdfPageView) -> list:
         """
         Prepare initial structural elements for the template based on
         detected regions.
@@ -111,7 +111,6 @@ class TemplateJsonCreator:
         Args:
             result (Document): AWS Document class containing all data from AI for one page.
             page_view (PdfPageView): The view of the PDF page used for coordinate conversion.
-            page_number (int): PDF file page number.
 
         Returns:
             List of elements with parameters.
@@ -182,7 +181,7 @@ class TemplateJsonCreator:
                     element["type"] = "pde_text"
 
                 case constants.LAYOUT_TABLE:
-                    table_data: Table = layout.children[0]
+                    table_data: Table = self._find_table_in_children(layout)
                     cell_elements: list = self._create_table_cells(table_data, page_view)
                     element["element_template"] = {
                         "template": {
@@ -260,6 +259,23 @@ class TemplateJsonCreator:
         # TODO sorting
 
         return items
+
+    def _find_table_in_children(self, layout: Layout) -> Table:
+        """
+        Find Table in children as it contains information about rows and columns and cell data.
+        Usually first child is Table, but sometimes a lof of Lines are before it.
+
+        Args:
+            layout (Layout): Layout that is Table.
+
+        Returns:
+            Table class that contains information about rows and columns.
+        """
+        for child in layout.children:
+            if isinstance(child, Table):
+                return child
+
+        return layout.children[0]
 
     def _create_table_cells(self, table_data: Table, page_view: PdfPageView) -> list:
         """
