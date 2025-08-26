@@ -36,12 +36,13 @@ class TemplateJsonCreator:
         Returns:
             Template json for whole document
         """
-        created_date = date.today().strftime("%Y-%m-%d")
+        created_date: str = date.today().strftime("%Y-%m-%d")
+        image_info: str = f"transforms in this docker image of version: {self._get_current_version()}"
         metadata: dict = {
-            "author": f"AutoTag (Textract) {self._get_current_version()}",
+            "author": "Generated using Amazon Textract AI",
             "created": created_date,
             "modified": created_date,
-            "notes": f"Created using Amazon Textract and PDFix zoom: {zoom}",
+            "notes": f"Created using Amazon Textract, PDFix SDK and {image_info} with zoom: {zoom}",
             "sdk_version": __version__,
             # we are creating first one always so it is always "1"
             "version": "1",
