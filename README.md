@@ -27,7 +27,7 @@ The first run will pull the docker image, which may take some time. Make your ow
 To run docker container as CLI you should share the folder with PDF to process using `-v` parameter. In this example it's current folder.
 
 ```bash
-docker run -v ~/.aws:/root/.aws -v $(pwd):/data -w /data --rm pdfix/autotag-textract:latest tag --aws_id ${AWS_ID} --aws_secret ${AWS_SECRET} --aws_region ${AWS_REGION} --name ${LICENSE_NAME} --key ${LICENSE_KEY} -i /data/input.pdf -o /data/output.pdf
+docker run -v $(pwd):/data -w /data --rm pdfix/autotag-textract:latest tag --aws_id ${AWS_ID} --aws_secret ${AWS_SECRET} --aws_region ${AWS_REGION} --name ${LICENSE_NAME} --key ${LICENSE_KEY} -i /data/input.pdf -o /data/output.pdf
 ```
 
 These arguments are required and are used to identify AWS account used for Textract.
