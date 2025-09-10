@@ -2,7 +2,7 @@ import json
 import sys
 from datetime import date
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 import textractor.data.constants as constants
 from pdfixsdk import PdfDevRect, PdfPageView, PdfRect, __version__
@@ -182,17 +182,21 @@ class TemplateJsonCreator:
                     element["type"] = "pde_text"
 
                 case constants.LAYOUT_TABLE:
-                    table_data: Table = self._find_table_in_children(layout)
-                    cell_elements: list = self._create_table_cells(table_data, page_view)
-                    element["element_template"] = {
-                        "template": {
-                            "element_create": [{"elements": cell_elements, "query": {}, "statement": "$if"}],
-                        },
-                    }
-                    element["row_num"] = table_data.row_count
-                    element["col_num"] = table_data.column_count
-                    element["flag"] = "no_join|no_split"
-                    element["type"] = "pde_table"
+                    table_data: Optional[Table] = self._find_table_in_children(layout)
+                    if table_data:
+                        cell_elements: list = self._create_table_cells(table_data, page_view)
+                        element["element_template"] = {
+                            "template": {
+                                "element_create": [{"elements": cell_elements, "query": {}, "statement": "$if"}],
+                            },
+                        }
+                        element["row_num"] = table_data.row_count
+                        element["col_num"] = table_data.column_count
+                        element["flag"] = "no_join|no_split"
+                        element["type"] = "pde_table"
+                    else:
+                        # Skip this element as it does not contain information about table
+                        continue
 
                 case constants.LAYOUT_TEXT:
                     element["flag"] = "no_join|no_split"
@@ -261,7 +265,7 @@ class TemplateJsonCreator:
 
         return items
 
-    def _find_table_in_children(self, layout: Layout) -> Table:
+    def _find_table_in_children(self, layout: Layout) -> Optional[Table]:
         """
         Find Table in children as it contains information about rows and columns and cell data.
         Usually first child is Table, but sometimes a lof of Lines are before it.
@@ -276,7 +280,7 @@ class TemplateJsonCreator:
             if isinstance(child, Table):
                 return child
 
-        return layout.children[0]
+        return None
 
     def _create_table_cells(self, table_data: Table, page_view: PdfPageView) -> list:
         """
