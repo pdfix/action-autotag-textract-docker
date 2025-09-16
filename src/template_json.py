@@ -11,6 +11,8 @@ from textractor.entities.layout import Layout
 from textractor.entities.table import Table
 from textractor.entities.table_cell import TableCell
 
+from process_bboxes import TextractPostProcessingBBoxes
+
 
 class TemplateJsonCreator:
     """
@@ -121,11 +123,18 @@ class TemplateJsonCreator:
         page_w = page_view.GetDeviceWidth()
         page_h = page_view.GetDeviceHeight()
 
+        post_processor: TextractPostProcessingBBoxes = TextractPostProcessingBBoxes(result)
+        skipping: list[str] = post_processor.get_list_of_skipping_ids()
+
         for region in result.layouts:
             if not isinstance(region, Layout):
                 continue
 
             layout: Layout = region
+
+            if layout.id in skipping:
+                continue
+
             element: dict[str, Any] = {}
 
             rect = PdfDevRect()
