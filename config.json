@@ -31,16 +31,16 @@
                 {
                     "title": "AWS Access Key ID",
                     "name": "aws_id",
-                    "flags": 96,
                     "desc": "AWS Access Key ID",
+                    "flags": 96,
                     "type": "string",
                     "value": ""
                 },
                 {
                     "title": "AWS Secret Access Key",
                     "name": "aws_secret",
-                    "flags": 96,
                     "desc": "AWS Secret Access Key",
+                    "flags": 96,
                     "type": "string",
                     "value": ""
                 },
