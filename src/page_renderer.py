@@ -11,7 +11,7 @@ from pdfixsdk import (
     kPsTruncate,
 )
 
-from exceptions import PdfixException
+from exceptions import PdfixFailedToRenderException
 
 
 def render_page(pdfix: Pdfix, pdf_page: PdfPage, page_view: PdfPageView, temp_file: BinaryIO) -> None:
@@ -34,7 +34,7 @@ def render_page(pdfix: Pdfix, pdf_page: PdfPage, page_view: PdfPageView, temp_fi
     # Create an image with the specified dimensions and ARGB format
     page_image = pdfix.CreateImage(page_width, page_height, kImageDIBFormatArgb)
     if page_image is None:
-        raise PdfixException(pdfix, "Failed to create image of page")
+        raise PdfixFailedToRenderException(pdfix, "Failed to create image of page")
 
     try:
         # Set up rendering parameters
@@ -44,12 +44,12 @@ def render_page(pdfix: Pdfix, pdf_page: PdfPage, page_view: PdfPageView, temp_fi
 
         # Render the page content onto the image
         if not pdf_page.DrawContent(render_params):
-            raise PdfixException(pdfix, "Failed to draw content of page into image")
+            raise PdfixFailedToRenderException(pdfix, "Failed to draw content of page into image")
 
         # Save the rendered image to a temporary file in JPG format
         file_stream = pdfix.CreateFileStream(temp_file.name, kPsTruncate)
         if file_stream is None:
-            raise PdfixException(pdfix, "Unable to create file stream")
+            raise PdfixFailedToRenderException(pdfix, "Unable to create file stream")
 
         try:
             # Set image parameters (format and quality)
@@ -59,7 +59,7 @@ def render_page(pdfix: Pdfix, pdf_page: PdfPage, page_view: PdfPageView, temp_fi
 
             # Save the image to the file stream
             if not page_image.SaveToStream(file_stream, image_params):
-                raise PdfixException(pdfix, "Failed to save rendered image to temporary file")
+                raise PdfixFailedToRenderException(pdfix, "Failed to save rendered image to temporary file")
 
         except Exception:
             raise

@@ -22,7 +22,12 @@ from tqdm import tqdm
 
 from ai import process_image
 from convertor import ConvertDocumentToDictionary
-from exceptions import PdfixException
+from exceptions import (
+    PdfixFailedToOpenException,
+    PdfixFailedToSaveException,
+    PdfixFailedToTagException,
+    PdfixInitializeException,
+)
 from page_renderer import render_page
 from template_json import TemplateJsonCreator
 from utils_sdk import authorize_sdk, json_to_raw_data
@@ -75,7 +80,7 @@ class AutotagUsingAmazonTextractRecognition:
 
         pdfix = GetPdfix()
         if pdfix is None:
-            raise Exception("Pdfix Initialization failed")
+            raise PdfixInitializeException()
 
         # Try to authorize PDFix SDK
         authorize_sdk(pdfix, self.license_name, self.license_key)
@@ -83,7 +88,7 @@ class AutotagUsingAmazonTextractRecognition:
         # Open the document
         doc = pdfix.OpenDoc(self.input_path_str, "")
         if doc is None:
-            raise PdfixException(pdfix, "Unable to open PDF")
+            raise PdfixFailedToOpenException(pdfix, self.input_path_str)
 
         # Process each page
         num_pages = doc.GetNumPages()
@@ -93,7 +98,7 @@ class AutotagUsingAmazonTextractRecognition:
             # Acquire the page
             page: PdfPage = doc.AcquirePage(page_index)
             if page is None:
-                raise PdfixException(pdfix, "Unable to acquire the page")
+                raise PdfixFailedToTagException(pdfix, "Failed to acquire the page")
 
             try:
                 self._process_pdf_file_page(pdfix, id, page, page_index, template_json_creator)
@@ -115,7 +120,7 @@ class AutotagUsingAmazonTextractRecognition:
 
         # Save the processed document
         if not doc.Save(self.output_path_str, kSaveFull):
-            raise PdfixException(pdfix, "Unable to save PDF")
+            raise PdfixFailedToSaveException(pdfix, self.output_path_str)
 
     def _process_pdf_file_page(
         self,
@@ -140,7 +145,7 @@ class AutotagUsingAmazonTextractRecognition:
         # Define zoom level and rotation for rendering the page
         page_view: PdfPageView = page.AcquirePageView(self.zoom, kRotate0)
         if page_view is None:
-            raise PdfixException(pdfix, "Unable to acquire page view")
+            raise PdfixFailedToTagException(pdfix, "Failed to acquire the page view")
 
         try:
             with tempfile.NamedTemporaryFile(suffix=".jpg") as temp_file:
@@ -216,23 +221,23 @@ class AutotagUsingAmazonTextractRecognition:
         """
         # Remove old structure and prepare an empty structure tree
         if not doc.RemoveTags():
-            raise PdfixException(pdfix, "Failed to remove tags from doc")
+            raise PdfixFailedToTagException(pdfix, "Failed to remove tags from document")
         if not doc.RemoveStructTree():
-            raise PdfixException(pdfix, "Failed to remove structure from doc")
+            raise PdfixFailedToTagException(pdfix, "Failed to remove structure tree from document")
 
         # Convert template json to memory stream
         memory_stream = pdfix.CreateMemStream()
         if memory_stream is None:
-            raise PdfixException(pdfix, "Unable to create memory stream")
+            raise PdfixFailedToTagException(pdfix, "Failed to create memory stream")
 
         try:
             raw_data, raw_data_size = json_to_raw_data(template_json_dict)
             if not memory_stream.Write(0, raw_data, raw_data_size):
-                raise PdfixException(pdfix, "Unable to write template data into memory")
+                raise PdfixFailedToTagException(pdfix, "Failed to write template data into memory")
 
             doc_template: PdfDocTemplate = doc.GetTemplate()
             if not doc_template.LoadFromStream(memory_stream, kDataFormatJson):
-                raise PdfixException(pdfix, "Unable save template into document")
+                raise PdfixFailedToTagException(pdfix, "Failed to save template into document")
         except Exception:
             raise
         finally:
@@ -241,4 +246,4 @@ class AutotagUsingAmazonTextractRecognition:
         # Autotag document
         tagsParams = PdfTagsParams()
         if not doc.AddTags(tagsParams):
-            raise PdfixException(pdfix, "Failed to tag document")
+            raise PdfixFailedToTagException(pdfix, "Failed to tag document")

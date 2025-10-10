@@ -9,6 +9,14 @@ from typing import Optional
 
 from autotag import AutotagUsingAmazonTextractRecognition
 from create_template import CreateTemplateJsonUsingAmazonTextract
+from exceptions import (
+    EC_ARG_GENERAL,
+    MESSAGE_ARG_GENERAL,
+    ArgumentInputPdfOutputJsonException,
+    ArgumentInputPdfOutputPdfException,
+    ArgumentZoomException,
+    ExpectedException,
+)
 from image_update import DockerImageContainerUpdateChecker
 
 
@@ -98,7 +106,7 @@ def autotagging_pdf(
         zoom (float): Zoom level for rendering the page.
     """
     if zoom < 1.0 or zoom > 10.0:
-        raise Exception("Zoom level must between 1.0 and 10.0")
+        raise ArgumentZoomException()
 
     if input_path.lower().endswith(".pdf") and output_path.lower().endswith(".pdf"):
         autotag = AutotagUsingAmazonTextractRecognition(
@@ -113,7 +121,7 @@ def autotagging_pdf(
         )
         autotag.process_file()
     else:
-        raise Exception("Input and output file must be PDF documents")
+        raise ArgumentInputPdfOutputPdfException()
 
 
 def run_template_subcommand(args) -> None:
@@ -146,7 +154,7 @@ def create_template_json(
         zoom (float): Zoom level for rendering the page.
     """
     if zoom < 1.0 or zoom > 10.0:
-        raise Exception("Zoom level must between 1.0 and 10.0")
+        raise ArgumentZoomException()
 
     if input_path.lower().endswith(".pdf") and output_path.lower().endswith(".json"):
         template_creator = CreateTemplateJsonUsingAmazonTextract(
@@ -161,7 +169,7 @@ def create_template_json(
         )
         template_creator.process_file()
     else:
-        raise Exception("Input file must be PDF and output file must be JSON")
+        raise ArgumentInputPdfOutputJsonException()
 
 
 def main() -> None:
@@ -214,11 +222,11 @@ def main() -> None:
     try:
         args = parser.parse_args()
     except SystemExit as e:
-        if e.code == 0:
-            # This happens when --help is used, exit gracefully
-            sys.exit(0)
-        print("Failed to parse arguments. Please check the usage and try again.", file=sys.stderr)
-        sys.exit(e.code)
+        if e.code != 0:
+            print(MESSAGE_ARG_GENERAL, file=sys.stderr)
+            sys.exit(EC_ARG_GENERAL)
+        # This happens when --help is used, exit gracefully
+        sys.exit(0)
 
     if hasattr(args, "func"):
         # Check for updates only when help is not checked
@@ -235,7 +243,11 @@ def main() -> None:
         # Run subcommand
         try:
             args.func(args)
+        except ExpectedException as e:
+            print(e.message, file=sys.stderr)
+            sys.exit(e.error_code)
         except Exception as e:
+            # not expected exception -> print stack trace and what exception happened
             print(traceback.format_exc(), file=sys.stderr)
             print(f"Failed to run the program: {e}", file=sys.stderr)
             sys.exit(1)

@@ -14,7 +14,7 @@ from tqdm import tqdm
 
 from ai import process_image
 from convertor import ConvertDocumentToDictionary
-from exceptions import PdfixException
+from exceptions import PdfixFailedToCreateTemplateException, PdfixFailedToOpenException, PdfixInitializeException
 from page_renderer import render_page
 from template_json import TemplateJsonCreator
 from utils_sdk import authorize_sdk
@@ -62,7 +62,7 @@ class CreateTemplateJsonUsingAmazonTextract:
 
         pdfix = GetPdfix()
         if pdfix is None:
-            raise Exception("Pdfix Initialization failed")
+            raise PdfixInitializeException()
 
         # Try to authorize PDFix SDK
         authorize_sdk(pdfix, self.license_name, self.license_key)
@@ -70,7 +70,7 @@ class CreateTemplateJsonUsingAmazonTextract:
         # Open the document
         doc = pdfix.OpenDoc(self.input_path_str, "")
         if doc is None:
-            raise PdfixException(pdfix, "Unable to open PDF")
+            raise PdfixFailedToOpenException(pdfix, self.input_path_str)
 
         # Process images of each page
         num_pages = doc.GetNumPages()
@@ -80,7 +80,7 @@ class CreateTemplateJsonUsingAmazonTextract:
             # Acquire the page
             page: PdfPage = doc.AcquirePage(page_index)
             if page is None:
-                raise PdfixException(pdfix, "Unable to acquire the page")
+                raise PdfixFailedToCreateTemplateException(pdfix, "Unable to acquire the page")
 
             try:
                 self._process_pdf_file_page(pdfix, id, page, page_index, template_json_creator)
@@ -120,7 +120,7 @@ class CreateTemplateJsonUsingAmazonTextract:
         # Define rotation for rendering the page
         page_view: PdfPageView = page.AcquirePageView(self.zoom, kRotate0)
         if page_view is None:
-            raise PdfixException(pdfix, "Unable to acquire page view")
+            raise PdfixFailedToCreateTemplateException(pdfix, "Unable to acquire page view")
 
         try:
             with tempfile.NamedTemporaryFile(suffix=".jpg") as temp_file:
