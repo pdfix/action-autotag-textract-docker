@@ -225,6 +225,8 @@ class TemplateJsonCreator:
 
             elements.append(element)
 
+        # Currently we are sorting BBoxes from top to bottom, left to right
+        # for other types of sorting (or keeping original Amazon order) another sorting is needed)
         elements = sorted(elements, key=lambda x: (float(x["bbox"][3]), 1000.0 - float(x["bbox"][0])), reverse=True)
 
         return elements
@@ -270,7 +272,10 @@ class TemplateJsonCreator:
 
             items.append(item)
 
-        # TODO sorting
+        # If we want to sort items in list, here is the place to do it
+        # # Sorting items from top to bottom, left to right
+        # items = sorted(items, key=lambda x: (float(x["bbox"][3]), 1000.0 - float(x["bbox"][0])), reverse=True)
+        # Keep Amazon order for now
 
         return items
 
@@ -364,7 +369,10 @@ class TemplateJsonCreator:
                     }
                     cells.append(empty_cell)
 
-        # TODO sorting
+        # If we want to sort cells in table, here is the place to do it
+        # # Sorting cells from top to bottom, left to right
+        # cells = sorted(cells, key=lambda x: (float(x["cell_row"]), float(x["cell_column"])))
+        # Keep Amazon order for now
 
         return cells
 
