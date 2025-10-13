@@ -14,6 +14,11 @@ EC_PDFIX_FAILED_TO_SAVE = 25
 EC_PDFIX_FAILED_TO_TAG = 26
 EC_PDFIX_FAILED_TO_CREATE_TEMPLATE = 27
 
+EC_AT_GENERAL = 30
+EC_AT_CREDENTIALS_PROBLEM = 31
+EC_AT_REGION_PROBLEM = 32
+EC_AT_ENDPOINT_CONNECTION_ERROR = 33
+
 MESSAGE_ARG_GENERAL = "Failed to parse arguments. Please check the usage and try again."
 MESSAGE_ARG_ZOOM = "Zoom level must between 1.0 and 10.0."
 MESSAGE_ARG_INPUT_PDF_OUTPUT_JSON = "Input file must be PDF document and output file must be JSON."
@@ -28,6 +33,11 @@ MESSAGE_PDFIX_FAILED_TO_SAVE = "Failed to save PDF document."
 MESSAGE_PDFIX_FAILED_TO_TAG = "Failed to tag PDF document."
 MESSAGE_PDFIX_FAILED_TO_CREATE_TEMPLATE = "Failed to create template JSON."
 
+MESSAGE_AT_GENERAL = "Amazon Textract processing failed."
+MESSAGE_AT_CREDENTIALS_PROBLEM = "Amazon credentials problem. Please check the provided credentials."
+MESSAGE_AT_REGION_PROBLEM = "Amazon region problem. Please check the provided region."
+MESSAGE_AT_ENDPOINT_CONNECTION_ERROR = "Could not connect to the specified Amazon endpoint."
+
 
 class ExpectedException(BaseException):
     def __init__(self, error_code: int) -> None:
@@ -39,24 +49,24 @@ class ExpectedException(BaseException):
 
 
 class ArgumentException(ExpectedException):
-    def __init__(self, message: str = "", error_code: int = EC_ARG_GENERAL) -> None:
+    def __init__(self, message: str = MESSAGE_ARG_GENERAL, error_code: int = EC_ARG_GENERAL) -> None:
         super().__init__(error_code)
         self._add_note(message)
 
 
 class ArgumentZoomException(ArgumentException):
-    def __init__(self, message: str = MESSAGE_ARG_ZOOM) -> None:
-        super().__init__(message, EC_ARG_ZOOM)
+    def __init__(self) -> None:
+        super().__init__(MESSAGE_ARG_ZOOM, EC_ARG_ZOOM)
 
 
 class ArgumentInputPdfOutputJsonException(ArgumentException):
-    def __init__(self, message: str = MESSAGE_ARG_INPUT_PDF_OUTPUT_JSON) -> None:
-        super().__init__(message, EC_ARG_INPUT_PDF_OUTPUT_JSON)
+    def __init__(self) -> None:
+        super().__init__(MESSAGE_ARG_INPUT_PDF_OUTPUT_JSON, EC_ARG_INPUT_PDF_OUTPUT_JSON)
 
 
 class ArgumentInputPdfOutputPdfException(ArgumentException):
-    def __init__(self, message: str = MESSAGE_ARG_INPUT_PDF_OUTPUT_PDF) -> None:
-        super().__init__(message, EC_ARG_INPUT_PDF_OUTPUT_PDF)
+    def __init__(self) -> None:
+        super().__init__(MESSAGE_ARG_INPUT_PDF_OUTPUT_PDF, EC_ARG_INPUT_PDF_OUTPUT_PDF)
 
 
 class PdfixInitializeException(ExpectedException):
@@ -113,3 +123,29 @@ class PdfixFailedToCreateTemplateException(PdfixException):
     def __init__(self, pdfix: Pdfix, message: str = "") -> None:
         super().__init__(pdfix, f"{MESSAGE_PDFIX_FAILED_TO_CREATE_TEMPLATE} {message}")
         self.error_code = EC_PDFIX_FAILED_TO_CREATE_TEMPLATE
+
+
+class AmazonTextractException(ExpectedException):
+    def __init__(self, message: str = "", error_code: int = 0) -> None:
+        super().__init__(error_code)
+        self._add_note(message)
+
+
+class AmazonTextractGenericException(AmazonTextractException):
+    def __init__(self) -> None:
+        super().__init__(MESSAGE_AT_GENERAL, EC_AT_GENERAL)
+
+
+class AmazonTextractCredentialsException(AmazonTextractException):
+    def __init__(self) -> None:
+        super().__init__(MESSAGE_AT_CREDENTIALS_PROBLEM, EC_AT_CREDENTIALS_PROBLEM)
+
+
+class AmazonTextractRegionException(AmazonTextractException):
+    def __init__(self) -> None:
+        super().__init__(MESSAGE_AT_REGION_PROBLEM, EC_AT_REGION_PROBLEM)
+
+
+class AmazonTextractEndpointUnreachableException(AmazonTextractException):
+    def __init__(self) -> None:
+        super().__init__(MESSAGE_AT_ENDPOINT_CONNECTION_ERROR, EC_AT_ENDPOINT_CONNECTION_ERROR)
