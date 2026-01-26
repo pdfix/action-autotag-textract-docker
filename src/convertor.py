@@ -30,17 +30,17 @@ class ConvertDocumentToDictionary:
             id (str): PDF document name.
             page_number (int): PDF file page number.
         """
-        self.document = document
-        self.id = id
-        self.page_number = page_number
+        self.document: Document = document
+        self.id: str = id
+        self.page_number: int = page_number
 
     def save_as_json(self) -> None:
         """
         Save the Document as dictionary into JSON file.
         """
         try:
-            dictionary = self._convert()
-            path: Path = Path(__file__).parent.joinpath(f"../output/{self.id}-{self.page_number}.json").resolve()
+            dictionary: dict = self._convert()
+            path: Path = Path(__file__).parent.parent.joinpath(f"output/{self.id}-{self.page_number}.json").resolve()
 
             with open(path, "w", encoding="utf-8") as result_file:
                 json.dump(dictionary, result_file, indent=2)

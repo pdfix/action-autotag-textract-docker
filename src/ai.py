@@ -1,4 +1,5 @@
 import sys
+from typing import Any
 
 import boto3
 from botocore.exceptions import (
@@ -38,7 +39,7 @@ def process_image(aws_access_key_id: str, aws_secret_access_key: str, aws_region
     """
     try:
         # Create boto3 Textract client
-        textract_client = boto3.client(
+        textract_client: Any = boto3.client(
             "textract",
             aws_access_key_id=aws_access_key_id,
             aws_secret_access_key=aws_secret_access_key,
@@ -46,7 +47,7 @@ def process_image(aws_access_key_id: str, aws_secret_access_key: str, aws_region
         )
 
         # Inspired with arguments with what is in extractor.analyze_document only different boto3 client is used
-        textract_json = call_textract(
+        textract_json: dict = call_textract(
             input_document=image_path,
             features=[Textract_Features.TABLES, Textract_Features.LAYOUT],
             call_mode=Textract_Call_Mode.FORCE_SYNC,
@@ -55,7 +56,7 @@ def process_image(aws_access_key_id: str, aws_secret_access_key: str, aws_region
         )
 
         # Created JSON needs to be further processed by textractor-parser to more useful format
-        document = response_parser.parse(textract_json)
+        document: Document = response_parser.parse(textract_json)
         document.response = textract_json
 
         # Save image so visualization can be done later

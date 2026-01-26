@@ -12,6 +12,7 @@ from pdfixsdk import (
     PdfPage,
     PdfPageView,
     PdfTagsParams,
+    PsMemoryStream,
     kDataFormatJson,
     kRotate0,
     kSaveFull,
@@ -78,7 +79,7 @@ class AutotagUsingAmazonTextractRecognition:
         """
         id: str = Path(self.input_path_str).stem
 
-        pdfix = GetPdfix()
+        pdfix: Optional[Pdfix] = GetPdfix()
         if pdfix is None:
             raise PdfixInitializeException()
 
@@ -86,17 +87,17 @@ class AutotagUsingAmazonTextractRecognition:
         authorize_sdk(pdfix, self.license_name, self.license_key)
 
         # Open the document
-        doc = pdfix.OpenDoc(self.input_path_str, "")
+        doc: Optional[PdfDoc] = pdfix.OpenDoc(self.input_path_str, "")
         if doc is None:
             raise PdfixFailedToOpenException(pdfix, self.input_path_str)
 
         # Process each page
-        num_pages = doc.GetNumPages()
-        template_json_creator = TemplateJsonCreator()
+        num_pages: int = doc.GetNumPages()
+        template_json_creator: TemplateJsonCreator = TemplateJsonCreator()
 
         for page_index in tqdm(range(0, num_pages), desc="Processing pages"):
             # Acquire the page
-            page: PdfPage = doc.AcquirePage(page_index)
+            page: Optional[PdfPage] = doc.AcquirePage(page_index)
             if page is None:
                 raise PdfixFailedToTagException(pdfix, "Failed to acquire the page")
 
@@ -111,7 +112,7 @@ class AutotagUsingAmazonTextractRecognition:
         template_json_dict: dict = template_json_creator.create_json_dict_for_document(self.zoom)
 
         # Save template to file
-        template_path: Path = Path(__file__).parent.joinpath("../output/{id}-template_json.json").resolve()
+        template_path: Path = Path(__file__).parent.parent.joinpath("output/{id}-template_json.json").resolve()
         with open(template_path, "w") as file:
             file.write(json.dumps(template_json_dict, indent=2))
 
@@ -140,10 +141,10 @@ class AutotagUsingAmazonTextractRecognition:
             page_index (int): PDF file page index.
             templateJsonCreator (TemplateJsonCreator): Template JSON creator.
         """
-        page_number = page_index + 1
+        page_number: int = page_index + 1
 
         # Define zoom level and rotation for rendering the page
-        page_view: PdfPageView = page.AcquirePageView(self.zoom, kRotate0)
+        page_view: Optional[PdfPageView] = page.AcquirePageView(self.zoom, kRotate0)
         if page_view is None:
             raise PdfixFailedToTagException(pdfix, "Failed to acquire the page view")
 
@@ -151,25 +152,25 @@ class AutotagUsingAmazonTextractRecognition:
             with tempfile.NamedTemporaryFile(suffix=".jpg") as temp_file:
                 # Render the page as an image
                 render_page(pdfix, page, page_view, cast(BinaryIO, temp_file))
-                temp_image_path = temp_file.name
+                temp_image_path: str = temp_file.name
 
                 # Run layout analysis
-                result = process_image(
+                result: Document = process_image(
                     self.aws_access_key_id, self.aws_secret_access_key, self.aws_region, temp_image_path
                 )
 
                 # Store image for saving results
-                image = cv2.imread(temp_image_path)
+                image: cv2.typing.MatLike = cv2.imread(temp_image_path)
 
                 # Custom visualization of the results
-                custom_visualizer = VisualizeAmazonResults(result, image, id, page_number)
+                custom_visualizer: VisualizeAmazonResults = VisualizeAmazonResults(result, image, id, page_number)
                 custom_visualizer.visualize(page_view)
 
                 # Amazon built-in visualization
                 self._visualize_page(result, id, page_number)
 
                 # Custom conversion to dict and saving to json file
-                convertor = ConvertDocumentToDictionary(result, id, page_number)
+                convertor: ConvertDocumentToDictionary = ConvertDocumentToDictionary(result, id, page_number)
                 convertor.save_as_json()
 
                 # Process the results
@@ -226,7 +227,7 @@ class AutotagUsingAmazonTextractRecognition:
             raise PdfixFailedToTagException(pdfix, "Failed to remove structure tree from document")
 
         # Convert template json to memory stream
-        memory_stream = pdfix.CreateMemStream()
+        memory_stream: Optional[PsMemoryStream] = pdfix.CreateMemStream()
         if memory_stream is None:
             raise PdfixFailedToTagException(pdfix, "Failed to create memory stream")
 
@@ -244,6 +245,6 @@ class AutotagUsingAmazonTextractRecognition:
             memory_stream.Destroy()
 
         # Autotag document
-        tagsParams = PdfTagsParams()
+        tagsParams: PdfTagsParams = PdfTagsParams()
         if not doc.AddTags(tagsParams):
             raise PdfixFailedToTagException(pdfix, "Failed to tag document")

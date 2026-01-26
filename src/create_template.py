@@ -5,11 +5,13 @@ from typing import BinaryIO, Optional, cast
 
 from pdfixsdk import (
     GetPdfix,
+    PdfDoc,
     Pdfix,
     PdfPage,
     PdfPageView,
     kRotate0,
 )
+from textractor.entities.document import Document
 from tqdm import tqdm
 
 from ai import process_image
@@ -60,7 +62,7 @@ class CreateTemplateJsonUsingAmazonTextract:
         """
         id: str = Path(self.input_path_str).stem
 
-        pdfix = GetPdfix()
+        pdfix: Optional[Pdfix] = GetPdfix()
         if pdfix is None:
             raise PdfixInitializeException()
 
@@ -68,17 +70,17 @@ class CreateTemplateJsonUsingAmazonTextract:
         authorize_sdk(pdfix, self.license_name, self.license_key)
 
         # Open the document
-        doc = pdfix.OpenDoc(self.input_path_str, "")
+        doc: Optional[PdfDoc] = pdfix.OpenDoc(self.input_path_str, "")
         if doc is None:
             raise PdfixFailedToOpenException(pdfix, self.input_path_str)
 
         # Process images of each page
-        num_pages = doc.GetNumPages()
-        template_json_creator = TemplateJsonCreator()
+        num_pages: int = doc.GetNumPages()
+        template_json_creator: TemplateJsonCreator = TemplateJsonCreator()
 
         for page_index in tqdm(range(0, num_pages), desc="Processing pages"):
             # Acquire the page
-            page: PdfPage = doc.AcquirePage(page_index)
+            page: Optional[PdfPage] = doc.AcquirePage(page_index)
             if page is None:
                 raise PdfixFailedToCreateTemplateException(pdfix, "Unable to acquire the page")
 
@@ -115,10 +117,10 @@ class CreateTemplateJsonUsingAmazonTextract:
             page_index (int): PDF file page index.
             templateJsonCreator (TemplateJsonCreator): Template JSON creator.
         """
-        page_number = page_index + 1
+        page_number: int = page_index + 1
 
         # Define rotation for rendering the page
-        page_view: PdfPageView = page.AcquirePageView(self.zoom, kRotate0)
+        page_view: Optional[PdfPageView] = page.AcquirePageView(self.zoom, kRotate0)
         if page_view is None:
             raise PdfixFailedToCreateTemplateException(pdfix, "Unable to acquire page view")
 
@@ -126,15 +128,15 @@ class CreateTemplateJsonUsingAmazonTextract:
             with tempfile.NamedTemporaryFile(suffix=".jpg") as temp_file:
                 # Render the page as an image
                 render_page(pdfix, page, page_view, cast(BinaryIO, temp_file))
-                temp_image_path = temp_file.name
+                temp_image_path: str = temp_file.name
 
                 # Run layout analysis
-                result = process_image(
+                result: Document = process_image(
                     self.aws_access_key_id, self.aws_secret_access_key, self.aws_region, temp_image_path
                 )
 
                 # Custom conversion to dict and saving to json file
-                convertor = ConvertDocumentToDictionary(result, id, page_number)
+                convertor: ConvertDocumentToDictionary = ConvertDocumentToDictionary(result, id, page_number)
                 convertor.save_as_json()
 
                 # Process the results
