@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Optional
 
 from autotag import AutotagUsingAmazonTextractRecognition
+from constants import CONFIG_FILE
 from create_template import CreateTemplateJsonUsingAmazonTextract
 from exceptions import (
     EC_ARG_GENERAL,
@@ -66,7 +67,7 @@ def get_pdfix_config(path: str) -> None:
     Args:
         path (string): Destination path for config.json file
     """
-    config_path: Path = Path(__file__).parent.joinpath("../config.json").resolve()
+    config_path: Path = Path(__file__).parent.parent.joinpath(CONFIG_FILE)
 
     with open(config_path, "r", encoding="utf-8") as file:
         if path is None:
