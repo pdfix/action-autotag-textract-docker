@@ -1,4 +1,11 @@
-CONFIG_FILE = "config.json"
-DOCKER_NAMESPACE = "pdfix"
-DOCKER_REPOSITORY = "autotag-textract"
-DOCKER_IMAGE = f"{DOCKER_NAMESPACE}/{DOCKER_REPOSITORY}"
+CONFIG_FILE: str = "config.json"
+DOCKER_NAMESPACE: str = "pdfix"
+DOCKER_REPOSITORY: str = "autotag-textract"
+DOCKER_IMAGE: str = f"{DOCKER_NAMESPACE}/{DOCKER_REPOSITORY}"
+PERCENT_AI: float = 0.8
+PERCENT_RENDER: float = 0.1
+PERCENT_TEMPLATE: float = 0.1
+PROGRESS_FIRST_STEP: int = 10  # Initialize (open document, read page count, etc.)
+PROGRESS_FOURTH_STEP: int = 80  # Autotagging and saving document/data
+PROGRESS_SECOND_STEP: int = 900  # Run AI heavy workload (+ rendering + template conversion)
+PROGRESS_THIRD_STEP: int = 10  # Save template or prepare it for autotagging
