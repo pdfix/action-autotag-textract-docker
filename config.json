@@ -128,7 +128,7 @@
                 "32": "Amazon region problem. Please check the provided region.",
                 "33": "Could not connect to the specified Amazon endpoint."
             },
-            "progress_regex": "^[^:]+:\\s+(?<progress>\\d{1,3})%"
+            "progress_regex": "^(?<text>[^:]+):\\s+(?<progress>\\d{1,3})%"
         },
         {
             "title": "Create Layout Template JSON (Textract)",
@@ -257,7 +257,7 @@
                 "32": "Amazon region problem. Please check the provided region.",
                 "33": "Could not connect to the specified Amazon endpoint."
             },
-            "progress_regex": "^[^:]+:\\s+(?<progress>\\d{1,3})%"
+            "progress_regex": "^(?<text>[^:]+):\\s+(?<progress>\\d{1,3})%"
         }
     ]
 }
