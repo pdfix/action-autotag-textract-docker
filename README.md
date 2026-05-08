@@ -1,79 +1,88 @@
-# PDF Accesibility Amazon Textract
+# PDF Accessibility Amazon Textract
 
-A Docker image that automatically tags a PDF file or creates template layout json for it using Amazon Textract.
+A Docker image that automatically tags a PDF or creates a layout template JSON using Amazon Textract.
 
 ## Table of Contents
 
-- [Autotag Textract](#autotag-textract)
-  - [Table of Contents](#table-of-contents)
-  - [Getting Started](#getting-started)
-  - [Run a Docker Container ](#run-docker-container)
-    - [Run Docker Container for Autotagging](#run-docker-container-for-autotagging)
-    - [Run Docker Container for Template JSON Creation](#run-docker-container-for-template-json-creation)
-    - [Exporting Configuration for Integration](#exporting-configuration-for-integration)
-  - [License](#license)
-  - [Help \& Support](#help--support)
+- [PDF Accessibility Amazon Textract](#pdf-accessibility-amazon-textract)
+  - [Getting started](#getting-started)
+  - [Usage](#usage)
+  - [Commands](#commands)
+  - [Arguments](#arguments)
+  - [Examples](#examples)
+  - [Help \& support](#help--support)
+  - [Licenses](#licenses)
 
-## Getting Started
+## Getting started
 
-To use this Docker application, you'll need to have Docker installed on your system. If Docker is not installed, please follow the instructions on the [official Docker website](https://docs.docker.com/get-docker/) to install it.
+You need Docker installed. The first run downloads the image and may take longer than later runs.
 
-## Run a Docker Container
+## Usage
 
-The first run will pull the docker image, which may take some time. Make your own image for more advanced use.
-
-### Run Docker Container for Autotagging
-
-To run docker container as CLI you should share the folder with PDF to process using `-v` parameter. In this example it's current folder.
+Mount a folder into the container and run a subcommand:
 
 ```bash
-docker run -v $(pwd):/data -w /data --rm pdfix/autotag-textract:latest tag --aws_id ${AWS_ID} --aws_secret ${AWS_SECRET} --aws_region ${AWS_REGION} --name ${LICENSE_NAME} --key ${LICENSE_KEY} -i /data/input.pdf -o /data/output.pdf
+docker run --rm -v "$(pwd)":/data -w /data pdfix/autotag-textract:latest <command> [options]
 ```
 
-These arguments are required and are used to identify AWS account used for Textract.
+## Commands
+
+- `tag`: Tag a PDF using Amazon Textract layout recognition
+- `template`: Create a layout template JSON for later tagging
+
+## Arguments
+
+### Common (used by `tag` and `template`)
+
+| Option | Required | Type / expected value | Description |
+|---|:---:|---|---|
+| `--aws_id` | yes | String (AWS Access Key ID) | AWS Access Key ID |
+| `--aws_secret` | yes | String (AWS Secret Access Key) | AWS Secret Access Key |
+| `--aws_region` | yes | String (AWS region code, e.g. `us-east-1`) | AWS region |
+| `--name` | no | String (PDFix account license name) | PDFix license name |
+| `--key` | no | String (PDFix account license key) | PDFix license key |
+| `--zoom` | no | Float, range **1.0–10.0** (default **2.0**) | Page render zoom |
+
+### `tag`
+
+| Option | Required | Type / expected value | Description |
+|---|:---:|---|---|
+| `--input`, `-i` | yes | Path to an existing `.pdf` file | Input PDF |
+| `--output`, `-o` | yes | Path for the output `.pdf` file | Output PDF |
+
+### `template`
+
+| Option | Required | Type / expected value | Description |
+|---|:---:|---|---|
+| `--input`, `-i` | yes | Path to an existing `.pdf` file | Input PDF |
+| `--output`, `-o` | yes | Path ending in `.json` | Output JSON layout template |
+
+## Examples
+
+Tag a PDF:
 
 ```bash
---aws_id ${AWS_ID} --aws_secret ${AWS_SECRET} --aws_region ${AWS_REGION}
+docker run --rm -v "$(pwd)":/data -w /data pdfix/autotag-textract:latest \
+  tag --aws_id "${AWS_ID}" --aws_secret "${AWS_SECRET}" --aws_region "${AWS_REGION}" \
+  --name "${LICENSE_NAME}" --key "${LICENSE_KEY}" \
+  -i /data/input.pdf -o /data/output.pdf
 ```
 
-These arguments are for an account-based PDFix license.
+Create a layout template JSON:
 
 ```bash
---name ${LICENSE_NAME} --key ${LICENSE_KEY}
+docker run --rm -v "$(pwd)":/data -w /data pdfix/autotag-textract:latest \
+  template --aws_id "${AWS_ID}" --aws_secret "${AWS_SECRET}" --aws_region "${AWS_REGION}" \
+  -i /data/document.pdf -o /data/template.json
 ```
 
-Contact support for more information.
+## Help & support
 
-For more detailed information about the available command-line arguments, you can run the following command:
+For PDFix SDK licensing or issues, contact `support@pdfix.net`.
 
-```bash
-docker run --rm pdfix/autotag-textract:latest --help
-```
+## Licenses
 
-### Run Docker Container for Template JSON Creation
+- [PDFix Terms](https://pdfix.net/terms)
+- [Amazon Textract Textractor License](https://github.com/aws-samples/amazon-textract-textractor/blob/master/LICENSE)
 
-Automatically creates layout template json using AWS Textract, saving it as JSON file.
-
-```bash
-docker run -v ~/.aws:/root/.aws -v $(pwd):/data -w /data --rm pdfix/autotag-textract:latest template -i /data/document.pdf -o /data/template.json
-```
-
-### Exporting Configuration for Integration
-
-To export the configuration JSON file, use the following command:
-
-```bash
-docker run -v $(pwd):/data -w /data --rm pdfix/autotag-textract:latest config -o config.json
-```
-
-## License
-
-- [PDFix license](https://pdfix.net/terms)
-- [Amazon Textract](https://github.com/aws-samples/amazon-textract-textractor/blob/master/LICENSE)
-
-The trial version of the PDFix SDK may apply a watermark on the page and redact random parts of the PDF including the scanned image in the background. Contact us to get an evaluation or production license.
-
-## Help & Support
-
-To obtain a PDFix SDK license or report an issue please contact us at support@pdfix.net.
-For more information visit https://pdfix.net
+Trial versions of the PDFix SDK may apply watermarks and redact random content in the output PDF.
