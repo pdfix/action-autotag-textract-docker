@@ -1,42 +1,42 @@
 from pdfixsdk import Pdfix
 
-EC_ARG_GENERAL = 10
-EC_ARG_ZOOM = 11
-EC_ARG_INPUT_PDF_OUTPUT_JSON = 12
-EC_ARG_INPUT_PDF_OUTPUT_PDF = 13
+EC_ARG_GENERAL: int = 10
+EC_ARG_ZOOM: int = 11
+EC_ARG_INPUT_PDF_OUTPUT_JSON: int = 12
+EC_ARG_INPUT_PDF_OUTPUT_PDF: int = 13
 
-EC_PDFIX_INITIALIZE = 20
-EC_PDFIX_ACTIVATION_FAILED = 21
-EC_PDFIX_AUTHORIZATION_FAILED = 22
-EC_PDFIX_FAILED_TO_RENDER = 23
-EC_PDFIX_FAILED_TO_OPEN = 24
-EC_PDFIX_FAILED_TO_SAVE = 25
-EC_PDFIX_FAILED_TO_TAG = 26
-EC_PDFIX_FAILED_TO_CREATE_TEMPLATE = 27
+EC_PDFIX_INITIALIZE: int = 20
+EC_PDFIX_ACTIVATION_FAILED: int = 21
+EC_PDFIX_AUTHORIZATION_FAILED: int = 22
+EC_PDFIX_FAILED_TO_RENDER: int = 23
+EC_PDFIX_FAILED_TO_OPEN: int = 24
+EC_PDFIX_FAILED_TO_SAVE: int = 25
+EC_PDFIX_FAILED_TO_TAG: int = 26
+EC_PDFIX_FAILED_TO_CREATE_TEMPLATE: int = 27
 
-EC_AT_GENERAL = 30
-EC_AT_CREDENTIALS_PROBLEM = 31
-EC_AT_REGION_PROBLEM = 32
-EC_AT_ENDPOINT_CONNECTION_ERROR = 33
+EC_AT_GENERAL: int = 30
+EC_AT_CREDENTIALS_PROBLEM: int = 31
+EC_AT_REGION_PROBLEM: int = 32
+EC_AT_ENDPOINT_CONNECTION_ERROR: int = 33
 
-MESSAGE_ARG_GENERAL = "Failed to parse arguments. Please check the usage and try again."
-MESSAGE_ARG_ZOOM = "Zoom level must between 1.0 and 10.0."
-MESSAGE_ARG_INPUT_PDF_OUTPUT_JSON = "Input file must be PDF document and output file must be JSON."
-MESSAGE_ARG_INPUT_PDF_OUTPUT_PDF = "Input and output file must be PDF documents."
+MESSAGE_ARG_GENERAL: str = "Failed to parse arguments. Please check the usage and try again."
+MESSAGE_ARG_ZOOM: str = "Zoom level must between 1.0 and 10.0."
+MESSAGE_ARG_INPUT_PDF_OUTPUT_JSON: str = "Input file must be PDF document and output file must be JSON."
+MESSAGE_ARG_INPUT_PDF_OUTPUT_PDF: str = "Input and output file must be PDF documents."
 
-MESSAGE_PDFIX_INITIALIZE = "Failed to initialize PDFix SDK."
-MESSAGE_PDFIX_ACTIVATION_FAILED = "Failed to activate PDFix SDK acount."
-MESSAGE_PDFIX_AUTHORIZATION_FAILED = "Failed to authorize PDFix SDK acount."
-MESSAGE_PDFIX_FAILED_TO_RENDER = "Failed to render PDF Page into image."
-MESSAGE_PDFIX_FAILED_TO_OPEN = "Failed to open PDF document."
-MESSAGE_PDFIX_FAILED_TO_SAVE = "Failed to save PDF document."
-MESSAGE_PDFIX_FAILED_TO_TAG = "Failed to tag PDF document."
-MESSAGE_PDFIX_FAILED_TO_CREATE_TEMPLATE = "Failed to create template JSON."
+MESSAGE_PDFIX_INITIALIZE: str = "Failed to initialize PDFix SDK."
+MESSAGE_PDFIX_ACTIVATION_FAILED: str = "Failed to activate PDFix SDK account."
+MESSAGE_PDFIX_AUTHORIZATION_FAILED: str = "Failed to authorize PDFix SDK account."
+MESSAGE_PDFIX_FAILED_TO_RENDER: str = "Failed to render PDF Page into image."
+MESSAGE_PDFIX_FAILED_TO_OPEN: str = "Failed to open PDF document."
+MESSAGE_PDFIX_FAILED_TO_SAVE: str = "Failed to save PDF document."
+MESSAGE_PDFIX_FAILED_TO_TAG: str = "Failed to tag PDF document."
+MESSAGE_PDFIX_FAILED_TO_CREATE_TEMPLATE: str = "Failed to create template JSON."
 
-MESSAGE_AT_GENERAL = "Amazon Textract processing failed."
-MESSAGE_AT_CREDENTIALS_PROBLEM = "Amazon credentials problem. Please check the provided credentials."
-MESSAGE_AT_REGION_PROBLEM = "Amazon region problem. Please check the provided region."
-MESSAGE_AT_ENDPOINT_CONNECTION_ERROR = "Could not connect to the specified Amazon endpoint."
+MESSAGE_AT_GENERAL: str = "Amazon Textract processing failed."
+MESSAGE_AT_CREDENTIALS_PROBLEM: str = "Amazon credentials problem. Please check the provided credentials."
+MESSAGE_AT_REGION_PROBLEM: str = "Amazon region problem. Please check the provided region."
+MESSAGE_AT_ENDPOINT_CONNECTION_ERROR: str = "Could not connect to the specified Amazon endpoint."
 
 
 class ExpectedException(BaseException):
@@ -80,7 +80,7 @@ class PdfixException(ExpectedException):
         super().__init__(error_code)
         pdfix_error_code: int = pdfix.GetErrorType()
         pdfix_error: str = str(pdfix.GetError())
-        self.add_note(
+        self._add_note(
             f"[{pdfix_error_code}] [{pdfix_error}]: {message}"
             if len(message) > 0
             else f"[{pdfix_error_code}] {pdfix_error}"
