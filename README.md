@@ -83,6 +83,7 @@ For PDFix SDK licensing or issues, contact `support@pdfix.net`.
 ## Licenses
 
 - [PDFix Terms](https://pdfix.net/terms)
-- [Amazon Textract Textractor License](https://github.com/aws-samples/amazon-textract-textractor/blob/master/LICENSE)
+- [Amazon Textract Textractor](https://github.com/aws-samples/amazon-textract-textractor) — [Apache 2.0](https://github.com/aws-samples/amazon-textract-textractor/blob/master/LICENSE)
 
 Trial versions of the PDFix SDK may apply watermarks and redact random content in the output PDF.
+

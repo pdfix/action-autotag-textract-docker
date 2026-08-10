@@ -13,7 +13,6 @@ RUN apt-get update && \
 
 WORKDIR /usr/autotag/
 
-
 # Create a virtual environment and install dependencies
 ENV VIRTUAL_ENV=venv
 RUN python3 -m venv venv
@@ -21,15 +20,16 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 COPY requirements.txt /usr/autotag/
 RUN pip install --no-cache-dir -r requirements.txt
 
-
 # Copy sources and resources
 COPY config.json /usr/autotag/
 COPY src/ /usr/autotag/src/
-
 
 # Create required folders
 RUN mkdir -p /usr/autotag/output \
     && mkdir -p /data
 
+# License
+COPY THIRD_PARTY_LICENSES.md /THIRD_PARTY_LICENSES.md
+LABEL license="https://pdfix.net/terms (PDFix SDK) and Apache-2.0 (Amazon Textract Textractor)"
 
 ENTRYPOINT ["/usr/autotag/venv/bin/python3", "/usr/autotag/src/main.py"]
