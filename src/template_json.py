@@ -56,6 +56,8 @@ class TemplateJsonCreator:
                 "text_table_detect": "0",
                 "label_image_detect": "0",
                 "label_word_detect": "0",
+                # Keep Amazon Textract reading order, elements are marked with rd_index
+                "rd_sort": "3",
             }
         ]
 
@@ -79,6 +81,15 @@ class TemplateJsonCreator:
             zoom (float): Zoom level that page was rendered with.
         """
         elements: list = self._create_json_for_elements(result, page_view)
+
+        # Amazon sorting
+        self._add_rd_indexes(elements)
+
+        # X Y Sorting (Top to Bottom, Left to Right)
+        # elements = sorted(elements, key=lambda x: (float(x["bbox"][3]), 1000.0 - float(x["bbox"][0])), reverse=True)
+
+        # PDFix Sorting
+        # change "rd_sort": "1" in page_map
 
         json_for_page = {
             "comment": f"Page {page_number}",
@@ -225,11 +236,21 @@ class TemplateJsonCreator:
 
             elements.append(element)
 
-        # Currently we are sorting BBoxes from top to bottom, left to right
-        # for other types of sorting (or keeping original Amazon order) another sorting is needed)
-        elements = sorted(elements, key=lambda x: (float(x["bbox"][3]), 1000.0 - float(x["bbox"][0])), reverse=True)
-
         return elements
+
+    def _add_rd_indexes(self, elements: list) -> None:
+        """
+        Add rd_index to elements to keep their order, recursively for list items and table cells.
+
+        Args:
+            elements (list): Elements in reading order.
+        """
+        for index, element in enumerate(elements):
+            element["rd_index"] = index
+
+            if "element_template" in element:
+                for block in element["element_template"]["template"]["element_create"]:
+                    self._add_rd_indexes(block["elements"])
 
     def _create_list_items(self, list_layout: Layout, page_view: PdfPageView) -> list:
         """
