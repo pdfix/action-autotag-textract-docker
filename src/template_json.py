@@ -164,6 +164,9 @@ class TemplateJsonCreator:
             # https://docs.aws.amazon.com/textract/latest/dg/layoutresponse.html
             match layout.layout_type:
                 case constants.LAYOUT_FIGURE:
+                    alt_text: str = " ".join(layout.text.split())
+                    if alt_text:
+                        element["alt"] = alt_text
                     element["flag"] = "no_join|no_split"
                     element["type"] = "pde_image"
 
