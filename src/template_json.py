@@ -372,6 +372,9 @@ class TemplateJsonCreator:
             if cell_is_header:
                 create_cell["cell_scope"] = "column"
 
+            if cell.is_summary:
+                create_cell["comment"] = f"{create_cell['comment']} Summary: {cell.text.strip()}"
+
             cells.append(create_cell)
 
         # Fill table with empty cells
