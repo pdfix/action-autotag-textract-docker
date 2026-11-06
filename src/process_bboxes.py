@@ -12,7 +12,7 @@ def convert_bbox(region: Layout) -> tuple[float, float, float, float]:
 
 def bboxes_overlaps(region1: Layout, region2: Layout) -> bool:
     """
-    Check if two regions overlap.
+    Check if two regions overlap. Curretly unused as percentage overlap is used instead.
 
     Args:
         region1 (Layout): A region from amazon textract document.
@@ -38,6 +38,9 @@ class TextractPostProcessingBBoxes:
     between them. List of skip ids is created during process
     """
 
+    # Constants
+    MIN_OVERLAP_PERCENT: int = 50  # How much of the smaller bounding box must be covered to count as overlap
+
     def __init__(self, result: Document) -> None:
         """
         Initialize the class with Amazon Textract document.
@@ -50,8 +53,8 @@ class TextractPostProcessingBBoxes:
     def get_list_of_skipping_ids(self) -> list[str]:
         """
         Processes Amazon Textract Document region's bounding boxes (bboxes):
-        - group overlaps according to which bounding box (bbox) touches which bbox
-        - inside group take bbox with highest score and remove all touching bboxes
+        - group overlaps according to which bounding box (bbox) overlaps which bbox
+        - inside group take bbox with highest score and remove all overlapping bboxes
         - repeat till all bboxes from group are processed
 
         Returns:
@@ -92,7 +95,7 @@ class TextractPostProcessingBBoxes:
 
     def _is_overlapping(self, index1: int, index2: int) -> bool:
         """
-        Check if two bounding boxes overlap.
+        Check if two bounding boxes overlap by at least MIN_OVERLAP_PERCENT of the smaller one.
 
         Args:
             index1 (int): Index of the first bounding box.
@@ -101,7 +104,8 @@ class TextractPostProcessingBBoxes:
         Returns:
             True if the bounding boxes overlap, False otherwise.
         """
-        return bboxes_overlaps(self.result.layouts[index1], self.result.layouts[index2])
+        # Smaller bounding box has always the higher percentage
+        return max(self._bboxes_overlaping_percentages(index1, index2)) >= self.MIN_OVERLAP_PERCENT
 
     def _bboxes_overlaping_percentages(self, index1: int, index2: int) -> tuple:
         """
