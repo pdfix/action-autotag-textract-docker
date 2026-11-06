@@ -10,6 +10,7 @@ from textractor.entities.document import Document
 from textractor.entities.layout import Layout
 from textractor.entities.table import Table
 from textractor.entities.table_cell import TableCell
+from textractor.entities.word import Word
 
 from process_bboxes import TextractPostProcessingBBoxes
 
@@ -237,6 +238,10 @@ class TemplateJsonCreator:
                     element["text_flag"] = "no_new_line"
                     element["type"] = "pde_text"
 
+            # Lists and tables have information on their items and cells
+            if layout.layout_type not in (constants.LAYOUT_LIST, constants.LAYOUT_TABLE):
+                self._add_handwriting_comment(element, layout.words)
+
             elements.append(element)
 
         return elements
@@ -290,6 +295,8 @@ class TemplateJsonCreator:
                 "comment": f"List Item {round(layout.confidence * 100)}%",
                 "type": "pde_text",
             }
+
+            self._add_handwriting_comment(item, layout.words)
 
             # Only text included so we cannot mark bullets/numbers as:
             # item["label"] = "label"
@@ -375,6 +382,8 @@ class TemplateJsonCreator:
             if cell.is_summary:
                 create_cell["comment"] = f"{create_cell['comment']} Summary: {cell.text.strip()}"
 
+            self._add_handwriting_comment(create_cell, cell.words)
+
             cells.append(create_cell)
 
         # Fill table with empty cells
@@ -403,6 +412,21 @@ class TemplateJsonCreator:
         # Keep Amazon order for now
 
         return cells
+
+    def _add_handwriting_comment(self, element: dict, words: list[Word]) -> None:
+        """
+        Add handwritten words into comment of element.
+
+        Args:
+            element (dict): Template element with comment.
+            words (list[Word]): Words of the element.
+        """
+        is_handwriting: bool = False
+        for word in words:
+            if word.text_type == constants.TextTypes.HANDWRITING:
+                is_handwriting = True
+        if is_handwriting:
+            element["comment"] = f"{element['comment']} is handwriten"
 
     def _convert_bool_to_str(self, value: bool) -> str:
         """
