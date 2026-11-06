@@ -346,6 +346,7 @@ class TemplateJsonCreator:
 
             cell_position: str = f"[{cell_row}, {cell_column}]"
             cell_span: str = f"[{cell.row_span}, {cell.col_span}]"
+            cell_is_header: bool = cell.is_column_header or cell.is_section_title
 
             rect = PdfDevRect()
             rect.left = int(cell.bbox.x * page_w)
@@ -360,12 +361,12 @@ class TemplateJsonCreator:
                 "cell_column_span": str(cell.col_span),
                 "cell_row": str(cell_row),
                 "cell_row_span": str(cell.row_span),
-                "cell_header": cell.is_column_header,
+                "cell_header": self._convert_bool_to_str(cell_is_header),
                 "comment": f"Cell Pos: {cell_position} Span: {cell_span} Confidence: {round(cell.confidence * 100)}%",
                 "type": "pde_cell",
             }
 
-            if cell.is_column_header:
+            if cell_is_header:
                 create_cell["cell_scope"] = "column"
 
             cells.append(create_cell)
