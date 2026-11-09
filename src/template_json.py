@@ -6,6 +6,7 @@ from typing import Any, Optional
 
 import textractor.data.constants as constants
 from pdfixsdk import PdfDevRect, PdfPageView, PdfRect, __version__
+from textractor.entities.bbox import BoundingBox
 from textractor.entities.document import Document
 from textractor.entities.layout import Layout
 from textractor.entities.table import Table
@@ -385,6 +386,7 @@ class TemplateJsonCreator:
             List of cell elements with parameters.
         """
         cells: list = []
+        created_positions: set[tuple[int, int]] = set()
 
         page_w = page_view.GetDeviceWidth()
         page_h = page_view.GetDeviceHeight()
@@ -398,24 +400,42 @@ class TemplateJsonCreator:
             # AWS returns these as numbers instead of indexes
             cell_row: int = cell.row_index
             cell_column: int = cell.col_index
-
             cell_position: str = f"[{cell_row}, {cell_column}]"
-            cell_span: str = f"[{cell.row_span}, {cell.col_span}]"
-            cell_is_header: bool = cell.is_column_header or cell.is_section_title
 
+            # Merged cell is created only once from its top left cell for layout template
+            first_row, first_column, row_span, column_span = self._get_merged_cell_range(cell)
+            if (cell_row, cell_column) != (first_row, first_column):
+                # Create empty filler cell for rest of cells in this merged cell
+                created_positions.add((cell_row, cell_column))
+                filler_cell: dict = {
+                    "cell_column": str(cell_column),
+                    "cell_column_span": "0",
+                    "cell_row": str(cell_row),
+                    "cell_row_span": "0",
+                    "comment": f"Cell Pos: {cell_position} Span: [0, 0] (Filler cell)",
+                    "type": "pde_cell",
+                }
+                cells.append(filler_cell)
+                continue
+            merged_cells: list[TableCell] = cell.siblings or [cell]
+            created_positions.add((cell_row, cell_column))
+            cell_span: str = f"[{row_span}, {column_span}]"
+            cell_is_header: bool = any(item.is_column_header or item.is_section_title for item in merged_cells)
+
+            cell_bbox: BoundingBox = BoundingBox.enclosing_bbox(merged_cells)
             rect = PdfDevRect()
-            rect.left = int(cell.bbox.x * page_w)
-            rect.top = int(cell.bbox.y * page_h)
-            rect.right = int((cell.bbox.x + cell.bbox.width) * page_w)
-            rect.bottom = int((cell.bbox.y + cell.bbox.height) * page_h)
+            rect.left = int(cell_bbox.x * page_w)
+            rect.top = int(cell_bbox.y * page_h)
+            rect.right = int((cell_bbox.x + cell_bbox.width) * page_w)
+            rect.bottom = int((cell_bbox.y + cell_bbox.height) * page_h)
             bbox = page_view.RectToPage(rect)
 
             create_cell: dict = {
                 "bbox": [str(bbox.left), str(bbox.bottom), str(bbox.right), str(bbox.top)],
                 "cell_column": str(cell_column),
-                "cell_column_span": str(cell.col_span),
+                "cell_column_span": str(column_span),
                 "cell_row": str(cell_row),
-                "cell_row_span": str(cell.row_span),
+                "cell_row_span": str(row_span),
                 "cell_header": self._convert_bool_to_str(cell_is_header),
                 "comment": f"Cell Pos: {cell_position} Span: {cell_span} Confidence: {round(cell.confidence * 100)}%",
                 "type": "pde_cell",
@@ -424,21 +444,20 @@ class TemplateJsonCreator:
             if cell_is_header:
                 create_cell["cell_scope"] = "column"
 
-            if cell.is_summary:
-                create_cell["comment"] = f"{create_cell['comment']} Summary: {cell.text.strip()}"
+            if any(item.is_summary for item in merged_cells):
+                summary: str = " ".join(item.text.strip() for item in merged_cells).strip()
+                create_cell["comment"] = f"{create_cell['comment']} Summary: {summary}"
 
-            self._add_handwriting_comment(create_cell, cell.words)
+            self._add_handwriting_comment(create_cell, [word for item in merged_cells for word in item.words])
 
             cells.append(create_cell)
 
-        # Fill table with empty cells
+        # Fill table with empty cells (missing ones)
         for row_index in range(table_data.row_count):
             for col_index in range(table_data.column_count):
                 row_number: int = row_index + 1
                 column_number: int = col_index + 1
-                if not any(
-                    cell.row_index == row_number and cell.col_index == column_number for cell in table_data.children
-                ):
+                if (row_number, column_number) not in created_positions:
                     empty_cell: dict = {
                         "bbox": ["0", "0", "0", "0"],
                         "cell_column": str(column_number),
@@ -451,12 +470,36 @@ class TemplateJsonCreator:
                     }
                     cells.append(empty_cell)
 
-        # If we want to sort cells in table, here is the place to do it
-        # # Sorting cells from top to bottom, left to right
-        # cells = sorted(cells, key=lambda x: (float(x["cell_row"]), float(x["cell_column"])))
-        # Keep Amazon order for now
+        # PDFix SDK takes cells in template order, so covered and missing cells must be in their place in grid
+        cells = sorted(cells, key=lambda x: (int(x["cell_row"]), int(x["cell_column"])))
 
         return cells
+
+    def _get_merged_cell_range(self, cell: TableCell) -> tuple[int, int, int, int]:
+        """
+        Get position and span of merged cell that the cell is part of.
+
+        Args:
+            cell (TableCell): AWS Textract cell.
+
+        Returns:
+            First row, first column, row span and column span. Cell that is not merged returns its own values.
+        """
+        # Amazon Textract response:                    textractor objects:
+        #   TABLE ─┬─ CHILD ───────> CELL (span 1x1)     Table.table_cells: TableCell (row_span = col_span = 1)
+        #          └─ MERGED_CELL ─> MERGED_CELL         TableCell.siblings: cells of same MERGED_CELL
+        #   MERGED_CELL ── CHILD ──> CELL                TableCell.parent_cell_id: id of MERGED_CELL
+        # Real span is only in MERGED_CELL block, textractor keeps just siblings, so span is computed from them.
+        if not cell.siblings:
+            return cell.row_index, cell.col_index, cell.row_span, cell.col_span
+
+        rows: list[int] = [sibling.row_index for sibling in cell.siblings]
+        columns: list[int] = [sibling.col_index for sibling in cell.siblings]
+        min_row: int = min(rows)
+        min_column: int = min(columns)
+        max_row: int = max(rows)
+        max_column: int = max(columns)
+        return min_row, min_column, max_row - min_row + 1, max_column - min_column + 1
 
     def _add_handwriting_comment(self, element: dict, words: list[Word]) -> None:
         """
