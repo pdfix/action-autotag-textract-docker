@@ -137,6 +137,9 @@ class TemplateJsonCreator:
 
         post_processor: TextractPostProcessingBBoxes = TextractPostProcessingBBoxes(result)
         skipping: list[str] = post_processor.get_list_of_skipping_ids()
+        tuple_result: tuple[set[str], set[str]] = self._get_table_title_and_footer_word_ids(result)
+        table_title_word_ids: set[str] = tuple_result[0]
+        table_footer_word_ids: set[str] = tuple_result[1]
 
         for region in result.layouts:
             if not isinstance(region, Layout):
@@ -172,7 +175,12 @@ class TemplateJsonCreator:
                     element["type"] = "pde_image"
 
                 case constants.LAYOUT_FOOTER:
-                    element["flag"] = "footer|artifact|no_join|no_split"
+                    if self._consists_of_words(layout, table_footer_word_ids):
+                        # Footnote of table
+                        element["tag"] = "Note"
+                        element["flag"] = "no_join|no_split"
+                    else:
+                        element["flag"] = "footer|artifact|no_join|no_split"
                     element["text_flag"] = "no_new_line"
                     element["type"] = "pde_text"
 
@@ -223,6 +231,8 @@ class TemplateJsonCreator:
                         continue
 
                 case constants.LAYOUT_TEXT:
+                    if self._consists_of_words(layout, table_title_word_ids):
+                        element["tag"] = "Caption"
                     element["flag"] = "no_join|no_split"
                     element["text_flag"] = "no_new_line"
                     element["type"] = "pde_text"
@@ -259,6 +269,41 @@ class TemplateJsonCreator:
             if "element_template" in element:
                 for block in element["element_template"]["template"]["element_create"]:
                     self._add_rd_indexes(block["elements"])
+
+    def _get_table_title_and_footer_word_ids(self, result: Document) -> tuple[set[str], set[str]]:
+        """
+        Collect ids of words that Amazon Textract marked as table title or table footer.
+
+        Args:
+            result (Document): AWS Document class containing all data from AI for one page.
+
+        Returns:
+            Word ids of table titles and word ids of table footers.
+        """
+        title_word_ids: set[str] = set()
+        footer_word_ids: set[str] = set()
+
+        for table in result.tables:
+            if table.title is not None:
+                title_word_ids.update(word.id for word in table.title.words)
+            for footer in table.footers:
+                footer_word_ids.update(word.id for word in footer.words)
+
+        return title_word_ids, footer_word_ids
+
+    def _consists_of_words(self, layout: Layout, word_ids: set[str]) -> bool:
+        """
+        Check if all words of layout are in given words. Layout and table title or footer share the same words.
+
+        Args:
+            layout (Layout): AWS Textract Layout class.
+            word_ids (set[str]): Ids of words.
+
+        Returns:
+            True if layout has words and all of them are in given words.
+        """
+        words: list[Word] = layout.words
+        return len(words) > 0 and all(word.id in word_ids for word in words)
 
     def _create_list_items(self, list_layout: Layout, page_view: PdfPageView) -> list:
         """
