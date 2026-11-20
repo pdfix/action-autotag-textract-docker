@@ -109,12 +109,27 @@ class AutotagUsingAmazonTextractRecognition:
             authorize_sdk(pdfix, self.license_name, self.license_key)
 
             # Open the document
+            # @KA:action pdfix_autotag_textract
+            # @KA:logic Opening the PDF
+            # @KA:desc The PDF is opened before any page is sent to Amazon Textract, so problems with
+            # the input file cost nothing.
+            # @KA:problem "Failed to open PDF document." with "PDFix SDK error 5" (error 24)
+            # @KA:solution The input file does not exist. Check the path.
+            # @KA:problem "Failed to open PDF document." with "PDFix SDK error 30" (error 24)
+            # @KA:solution The input file is not a valid PDF. Open and save it again in a PDF editor and
+            # run the action again.
+            # @KA:problem "Failed to open PDF document." with "PDFix SDK error 34" (error 24)
+            # @KA:solution The input PDF is password-protected. Remove the password and run the action
+            # again.
             doc: Optional[PdfDoc] = pdfix.OpenDoc(self.input_path_str, "")
             if doc is None:
                 raise PdfixFailedToOpenException(pdfix, self.input_path_str)
 
             # Process each page
             number_of_pages: int = doc.GetNumPages()
+            # @KA:logic Document without pages
+            # @KA:desc A PDF without pages is saved unchanged as the output file; nothing is sent to
+            # Amazon Textract.
             if number_of_pages == 0:
                 # Nothing to tag, output is the original document
                 logger.info("Document has no pages. Saving original document.")
@@ -166,6 +181,12 @@ class AutotagUsingAmazonTextractRecognition:
             self._autotag_using_template(doc, template_json_dict, pdfix)
 
             # Save the processed document
+            # @KA:logic Saving the tagged PDF
+            # @KA:desc The tagged document is saved as the output file. The generated layout template
+            # is not saved; use **Create Layout Template JSON (Textract)** to get it.
+            # @KA:problem "Failed to save PDF document." (error 25)
+            # @KA:solution The output file cannot be written, for example it is open in another
+            # application or the folder is read-only. Close the file or select another output file.
             if not doc.Save(self.output_path_str, kSaveFull):
                 raise PdfixFailedToSaveException(pdfix, self.output_path_str)
 
@@ -283,6 +304,19 @@ class AutotagUsingAmazonTextractRecognition:
             pdfix (Pdfix): Pdfix SDK.
         """
         # Remove old structure and prepare an empty structure tree
+        # @KA:logic Existing tags are replaced
+        # @KA:desc The whole document is tagged from scratch: the old structure tree and all old tags
+        # and artifact marks are removed first, nothing of them is kept.
+        # @KA:problem "Failed to tag PDF document." (error 26)
+        # @KA:solution PDFix SDK could not tag the document with the detected layout. Try
+        # **Create Layout Template JSON (Textract)**, check the template in the template editor and
+        # tag with **AutoTag (PDFix)**.
+        #
+        # @KA:logic What is not done
+        # @KA:desc The action only creates tags. It does not run OCR, add a description of images,
+        # create heading levels, set the document title or language, or fix metadata, and it does not
+        # validate the result. Run the matching actions afterwards and check the result with a PDF/UA
+        # validation.
         if not doc.RemoveTags():
             raise PdfixFailedToTagException(pdfix, "Failed to remove tags from document")
         if not doc.RemoveStructTree():

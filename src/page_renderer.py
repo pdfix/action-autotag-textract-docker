@@ -32,6 +32,12 @@ def render_page(pdfix: Pdfix, pdf_page: PdfPage, page_view: PdfPageView, temp_fi
     page_height = page_view.GetDeviceHeight()
 
     # Create an image with the specified dimensions and ARGB format
+    # @KA:action pdfix_autotag_textract pdfix_create_layout_template_json_textract
+    # @KA:logic Page rendering
+    # @KA:desc Each page is rendered into a JPG image with the selected **Rendering Zoom Level**.
+    # @KA:problem "Failed to render PDF Page into image." (error 23)
+    # @KA:solution The page cannot be drawn by PDFix SDK. Open and save the PDF again in a PDF editor
+    # and run the action again.
     page_image = pdfix.CreateImage(page_width, page_height, kImageDIBFormatArgb)
     if page_image is None:
         raise PdfixFailedToRenderException(pdfix, "Failed to create image of page")

@@ -86,6 +86,18 @@ class CreateTemplateJsonUsingAmazonTextract:
             authorize_sdk(pdfix, self.license_name, self.license_key)
 
             # Open the document
+            # @KA:action pdfix_create_layout_template_json_textract
+            # @KA:logic Opening the PDF
+            # @KA:desc The PDF is opened before any page is sent to Amazon Textract, so problems with
+            # the input file cost nothing.
+            # @KA:problem "Failed to open PDF document." with "PDFix SDK error 5" (error 24)
+            # @KA:solution The input file does not exist. Check the path.
+            # @KA:problem "Failed to open PDF document." with "PDFix SDK error 30" (error 24)
+            # @KA:solution The input file is not a valid PDF. Open and save it again in a PDF editor and
+            # run the action again.
+            # @KA:problem "Failed to open PDF document." with "PDFix SDK error 34" (error 24)
+            # @KA:solution The input PDF is password-protected. Remove the password and run the action
+            # again.
             doc: Optional[PdfDoc] = pdfix.OpenDoc(self.input_path_str, "")
             if doc is None:
                 raise PdfixFailedToOpenException(pdfix, self.input_path_str)
@@ -97,6 +109,9 @@ class CreateTemplateJsonUsingAmazonTextract:
             progress_bar.update(PROGRESS_FIRST_STEP)
             progress_bar.set_description("Processing pages")
             # Document without pages gets template without pages
+            # @KA:logic Document without pages
+            # @KA:desc A PDF without pages gets a template without page regions; nothing is sent to
+            # Amazon Textract.
             step_count: float = float(PROGRESS_SECOND_STEP) / max(number_of_pages, 1)
 
             for page_index in range(number_of_pages):
@@ -123,6 +138,9 @@ class CreateTemplateJsonUsingAmazonTextract:
             output_data: dict = template_json_dict
 
             # Save template json
+            # @KA:logic Saving the template
+            # @KA:desc The template is saved as JSON. It contains one block of regions per page and the
+            # PDFix SDK version used, and it can be opened in the PDFix Desktop template editor.
             with open(self.output_path_str, "w") as file:
                 file.write(json.dumps(output_data, indent=2))
 

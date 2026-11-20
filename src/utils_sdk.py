@@ -20,6 +20,15 @@ def authorize_sdk(pdfix: Pdfix, license_name: Optional[str], license_key: Option
         license_name (string): Pdfix sdk license name (e-mail)
         license_key (string): Pdfix sdk license key
     """
+    # @KA:action pdfix_autotag_textract pdfix_create_layout_template_json_textract
+    # @KA:logic PDFix license
+    # @KA:desc PDFix Desktop passes your PDFix license to the action automatically. Without a
+    # license the action runs in trial mode.
+    # @KA:problem The output PDF has watermarks or randomly redacted content.
+    # @KA:solution Trial mode is active. Activate your PDFix license in PDFix Desktop and run the
+    # action again.
+    # @KA:problem "Failed to authorize PDFix SDK account." (error 22) or activation failed (error 21)
+    # @KA:solution The PDFix license is not valid. Check the license in PDFix Desktop.
     if license_name and license_key:
         authorization: Optional[PsAccountAuthorization] = pdfix.GetAccountAuthorization()
         if authorization is None or not authorization.Authorize(license_name, license_key):

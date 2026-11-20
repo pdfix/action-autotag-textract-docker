@@ -87,6 +87,17 @@ def run_autotag_subcommand(args) -> None:
     )
 
 
+# @KA:action pdfix_autotag_textract
+# @KA:desc Automatically tags the whole PDF using layout recognition by Amazon Textract. Every page
+# is rendered as an image and sent to Amazon Textract, which finds titles, headings, paragraphs,
+# lists, tables, figures, headers and footers. From these regions a PDFix layout template is created
+# and the document is tagged with it. Existing tags are removed; the input file is not changed, the
+# tagged PDF is saved as the output file.
+# @KA:context Run on the **whole document** when a PDF is untagged or its tags should be replaced,
+# especially for documents with tables. Needs your own AWS account with Amazon Textract and an
+# internet connection; page images leave your computer and AWS charges for every page. Use
+# **Create Layout Template JSON (Textract)** instead when you want to check or edit the detected
+# layout before tagging.
 def autotagging_pdf(
     aws_access_key_id: str,
     aws_secret_access_key: str,
@@ -110,9 +121,25 @@ def autotagging_pdf(
         output_path (str): Path to PDF document.
         zoom (float): Zoom level for rendering the page.
     """
+    # @KA:param zoom
+    # @KA:desc Zoom used to render each page into the image sent to Amazon Textract, from 1.0 to 4.0
+    # (default 2.0, about 144 DPI). Higher zoom helps with small text but makes processing slower.
+    # @KA:problem "Zoom level must be between 1.0 and 4.0." (error 11)
+    # @KA:solution Set **Rendering Zoom Level** to a value from 1.0 to 4.0.
     if zoom < 1.0 or zoom > 4.0:
         raise ArgumentZoomException()
 
+    # @KA:param input_pdf
+    # @KA:desc PDF document to tag. It is only read, never changed. Password-protected PDFs are not
+    # supported.
+    # @KA:problem "Input and output file must be PDF documents." (error 13)
+    # @KA:solution Use files with the `.pdf` extension for both input and output.
+    #
+    # @KA:param output_pdf
+    # @KA:desc Where the tagged PDF is saved. The folder must already exist; an existing file with
+    # the same name is overwritten. The folder is checked before any page is sent to Amazon Textract.
+    # @KA:problem "Output folder does not exist." (error 14)
+    # @KA:solution Create the folder shown in the message or select another output file.
     if input_path.lower().endswith(".pdf") and output_path.lower().endswith(".pdf"):
         output_folder: Path = Path(output_path).resolve().parent
         if not output_folder.is_dir():
@@ -139,6 +166,16 @@ def run_template_subcommand(args) -> None:
     )
 
 
+# @KA:action pdfix_create_layout_template_json_textract
+# @KA:desc Creates a PDFix layout template (JSON) for the PDF using layout recognition by Amazon
+# Textract. Every page is rendered as an image and sent to Amazon Textract, which finds titles,
+# headings, paragraphs, lists, tables, figures, headers and footers; the regions of every page are
+# saved in the template. The PDF is not changed and not tagged.
+# @KA:context Run on the **whole document** when you want to review or correct the detected layout
+# in the PDFix Desktop template editor before tagging, or reuse it for similar documents. The
+# template remembers the PDFix SDK version it was made with, so **AutoTag (PDFix)** tags with the
+# same version later. Needs your own AWS account with Amazon Textract and an internet connection;
+# page images leave your computer and AWS charges for every page.
 def create_template_json(
     aws_access_key_id: str,
     aws_secret_access_key: str,
@@ -162,9 +199,26 @@ def create_template_json(
         output_path (str): Path to JSON file.
         zoom (float): Zoom level for rendering the page.
     """
+    # @KA:param zoom
+    # @KA:desc Zoom used to render each page into the image sent to Amazon Textract, from 1.0 to 4.0
+    # (default 2.0, about 144 DPI). Higher zoom helps with small text but makes processing slower.
+    # @KA:problem "Zoom level must be between 1.0 and 4.0." (error 11)
+    # @KA:solution Set **Rendering Zoom Level** to a value from 1.0 to 4.0.
     if zoom < 1.0 or zoom > 4.0:
         raise ArgumentZoomException()
 
+    # @KA:param input_pdf
+    # @KA:desc PDF document to analyze. It is only read, never changed. Password-protected PDFs are
+    # not supported.
+    # @KA:problem "Input file must be PDF document and output file must be JSON." (error 12)
+    # @KA:solution Use a `.pdf` input file and a `.json` output file.
+    #
+    # @KA:param output_json
+    # @KA:desc Where the layout template is saved. The folder must already exist; an existing file
+    # with the same name is overwritten. The folder is checked before any page is sent to Amazon
+    # Textract.
+    # @KA:problem "Output folder does not exist." (error 14)
+    # @KA:solution Create the folder shown in the message or select another output file.
     if input_path.lower().endswith(".pdf") and output_path.lower().endswith(".json"):
         output_folder: Path = Path(output_path).resolve().parent
         if not output_folder.is_dir():

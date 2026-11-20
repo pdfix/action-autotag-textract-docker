@@ -61,6 +61,33 @@ def process_image(aws_access_key_id: str, aws_secret_access_key: str, aws_region
     Returns:
         The document object containing the analysis results.
     """
+    # @KA:action pdfix_autotag_textract pdfix_create_layout_template_json_textract
+    # @KA:logic Pages are sent to Amazon Textract
+    # @KA:desc Every page is sent as an image to Amazon Textract (layout and table analysis) in the
+    # selected AWS region, one request per page, using your AWS keys. Pages leave your computer, an
+    # internet connection is needed, and AWS charges for every page. The text that Amazon Textract
+    # reads is used only to find regions on the page; the tags are created from the content of the
+    # PDF itself, so scanned pages without a text layer need OCR first.
+    # @KA:problem Amazon Textract processing failed. (error 30)
+    # @KA:solution The log line above the error shows the message from Amazon. Check that the
+    # region is selected and that Amazon Textract is enabled for your AWS account.
+    #
+    # @KA:param aws_id
+    # @KA:desc AWS Access Key ID of an AWS account (user) that is allowed to use Amazon Textract.
+    # Required.
+    # @KA:problem "Amazon credentials problem. Please check the provided credentials." (error 31)
+    # @KA:solution The key ID or secret key is wrong, empty or disabled. Copy both keys again from
+    # your AWS account.
+    #
+    # @KA:param aws_secret
+    # @KA:desc AWS Secret Access Key that belongs to the **AWS Access Key ID**. Required.
+    #
+    # @KA:param aws_region
+    # @KA:desc AWS region where Amazon Textract is called (default `us-east-1`). Pick a region
+    # close to you or one required by your data policy.
+    # @KA:problem "Could not connect to the specified Amazon endpoint." (error 33)
+    # @KA:solution There is no internet connection or Amazon Textract is not available in the
+    # selected region. Check the connection or select another region.
     try:
         # Create boto3 Textract client
         textract_client: Any = boto3.client(

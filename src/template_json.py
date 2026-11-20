@@ -139,6 +139,23 @@ class TemplateJsonCreator:
         page_w = page_view.GetDeviceWidth()
         page_h = page_view.GetDeviceHeight()
 
+        # @KA:action pdfix_autotag_textract pdfix_create_layout_template_json_textract
+        # @KA:logic How detected regions become tags
+        # @KA:desc Regions found by Amazon Textract are converted to the layout template like this:
+        # **Title** becomes `Title`; every **section header** becomes heading `H1` (Amazon Textract
+        # gives no heading levels); **text** becomes `P`, or `Caption` when Amazon Textract marks it
+        # as a table title; **lists** become `L` with one `LI` per item (bullets and numbers are not
+        # detected separately); **tables** keep rows, columns, merged cells and column header cells;
+        # **figures** become `Figure` with alternate text taken from the text Amazon Textract read
+        # inside the image (no description of the image); **headers**, **footers** and **page
+        # numbers** become artifacts, a footer that Amazon Textract marks as a table footnote becomes
+        # `Note`. Other regions become `P`. When regions overlap by more than half, only the one with
+        # the highest confidence is used. Reading order follows Amazon Textract.
+        #
+        # @KA:logic Template comments
+        # @KA:desc Each region in the template has a comment with its type and confidence (for
+        # example "table 99%"); handwritten text is noted as "is handwritten". You can see them in
+        # the template editor.
         post_processor: TextractPostProcessingBBoxes = TextractPostProcessingBBoxes(result)
         skipping: list[str] = post_processor.get_list_of_skipping_ids()
         tuple_result: tuple[set[str], set[str]] = self._get_table_title_and_footer_word_ids(result)
