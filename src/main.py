@@ -15,6 +15,7 @@ from exceptions import (
     MESSAGE_ARG_GENERAL,
     ArgumentInputPdfOutputJsonException,
     ArgumentInputPdfOutputPdfException,
+    ArgumentOutputFolderNotExistsException,
     ArgumentZoomException,
     ExpectedException,
 )
@@ -110,6 +111,10 @@ def autotagging_pdf(
         raise ArgumentZoomException()
 
     if input_path.lower().endswith(".pdf") and output_path.lower().endswith(".pdf"):
+        output_folder: Path = Path(output_path).resolve().parent
+        if not output_folder.is_dir():
+            raise ArgumentOutputFolderNotExistsException(output_folder.as_posix())
+
         autotag = AutotagUsingAmazonTextractRecognition(
             aws_access_key_id,
             aws_secret_access_key,
@@ -158,6 +163,10 @@ def create_template_json(
         raise ArgumentZoomException()
 
     if input_path.lower().endswith(".pdf") and output_path.lower().endswith(".json"):
+        output_folder: Path = Path(output_path).resolve().parent
+        if not output_folder.is_dir():
+            raise ArgumentOutputFolderNotExistsException(output_folder.as_posix())
+
         template_creator = CreateTemplateJsonUsingAmazonTextract(
             aws_access_key_id,
             aws_secret_access_key,

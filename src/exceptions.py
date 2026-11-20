@@ -4,6 +4,7 @@ EC_ARG_GENERAL: int = 10
 EC_ARG_ZOOM: int = 11
 EC_ARG_INPUT_PDF_OUTPUT_JSON: int = 12
 EC_ARG_INPUT_PDF_OUTPUT_PDF: int = 13
+EC_ARG_OUTPUT_FOLDER_NOT_EXISTS: int = 14
 
 EC_PDFIX_INITIALIZE: int = 20
 EC_PDFIX_ACTIVATION_FAILED: int = 21
@@ -23,6 +24,7 @@ MESSAGE_ARG_GENERAL: str = "Failed to parse arguments. Please check the usage an
 MESSAGE_ARG_ZOOM: str = "Zoom level must between 1.0 and 10.0."
 MESSAGE_ARG_INPUT_PDF_OUTPUT_JSON: str = "Input file must be PDF document and output file must be JSON."
 MESSAGE_ARG_INPUT_PDF_OUTPUT_PDF: str = "Input and output file must be PDF documents."
+MESSAGE_ARG_OUTPUT_FOLDER_NOT_EXISTS: str = "Output folder does not exist."
 
 MESSAGE_PDFIX_INITIALIZE: str = "Failed to initialize PDFix SDK."
 MESSAGE_PDFIX_ACTIVATION_FAILED: str = "Failed to activate PDFix SDK account."
@@ -67,6 +69,11 @@ class ArgumentInputPdfOutputJsonException(ArgumentException):
 class ArgumentInputPdfOutputPdfException(ArgumentException):
     def __init__(self) -> None:
         super().__init__(MESSAGE_ARG_INPUT_PDF_OUTPUT_PDF, EC_ARG_INPUT_PDF_OUTPUT_PDF)
+
+
+class ArgumentOutputFolderNotExistsException(ArgumentException):
+    def __init__(self, path: str) -> None:
+        super().__init__(f"{MESSAGE_ARG_OUTPUT_FOLDER_NOT_EXISTS} {path}", EC_ARG_OUTPUT_FOLDER_NOT_EXISTS)
 
 
 class PdfixInitializeException(ExpectedException):
