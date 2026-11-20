@@ -1,4 +1,4 @@
-import sys
+import logging
 from typing import Any
 
 import boto3
@@ -23,6 +23,9 @@ from exceptions import (
     AmazonTextractGenericException,
     AmazonTextractRegionException,
 )
+from logger import get_logger
+
+logger: logging.Logger = get_logger(__name__)
 
 
 def fix_generated_layouts_confidence(document: Document) -> None:
@@ -85,30 +88,30 @@ def process_image(aws_access_key_id: str, aws_secret_access_key: str, aws_region
         document.pages[0].image = Image.open(image_path)
 
     except NoCredentialsError as e:
-        print(e, file=sys.stderr)
+        logger.error(f"{e}")
         raise AmazonTextractCredentialsException()
     except PartialCredentialsError as e:
-        print(e, file=sys.stderr)
+        logger.error(f"{e}")
         raise AmazonTextractCredentialsException()
     except NoRegionError as e:
-        print(e, file=sys.stderr)
+        logger.error(f"{e}")
         raise AmazonTextractRegionException()
     except EndpointConnectionError as e:
-        print(e, file=sys.stderr)
+        logger.error(f"{e}")
         raise AmazonTextractEndpointUnreachableException()
     except ParamValidationError as e:
-        print(e, file=sys.stderr)
+        logger.error(f"{e}")
         raise AmazonTextractGenericException()
     except ClientError as e:
         error_code = e.response["Error"]["Code"]
         if error_code in ["UnrecognizedClientException", "InvalidClientTokenId", "SignatureDoesNotMatch"]:
-            print(e, file=sys.stderr)
+            logger.error(f"{e}")
             raise AmazonTextractCredentialsException()
         else:
-            print(e, file=sys.stderr)
+            logger.error(f"{e}")
             raise AmazonTextractGenericException()
     except Exception as e:
-        print(e, file=sys.stderr)
+        logger.error(f"{e}")
         raise AmazonTextractGenericException()
 
     return document

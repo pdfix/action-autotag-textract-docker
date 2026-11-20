@@ -1,6 +1,5 @@
 import json
-import sys
-import traceback
+import logging
 from pathlib import Path
 from typing import Any
 
@@ -14,6 +13,10 @@ from textractor.entities.layout import Layout
 from textractor.entities.page import Page
 from textractor.entities.table import Table
 from textractor.entities.table_cell import TableCell
+
+from logger import get_logger
+
+logger: logging.Logger = get_logger(__name__)
 
 
 class ConvertDocumentToDictionary:
@@ -45,8 +48,8 @@ class ConvertDocumentToDictionary:
             with open(path, "w", encoding="utf-8") as result_file:
                 json.dump(dictionary, result_file, indent=2)
         except Exception as e:
-            print(traceback.format_exc(), file=sys.stderr)
-            print(f"Failed to save custom dictionary conversion of Amazon Textract data: {e}", file=sys.stderr)
+            logger.error("Failed to save custom dictionary conversion of Amazon Textract data:")
+            logger.exception(e)
 
     def _convert(self) -> dict:
         """

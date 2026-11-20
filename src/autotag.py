@@ -1,4 +1,5 @@
 import json
+import logging
 import tempfile
 from pathlib import Path
 from typing import Any, BinaryIO, Optional, cast
@@ -38,9 +39,12 @@ from exceptions import (
     PdfixFailedToTagException,
     PdfixInitializeException,
 )
+from logger import get_logger
 from page_renderer import render_page
 from template_json import TemplateJsonCreator
 from utils_sdk import authorize_sdk, json_to_raw_data
+
+logger: logging.Logger = get_logger(__name__)
 
 # from visualisation import VisualizeAmazonResults
 
@@ -254,7 +258,7 @@ class AutotagUsingAmazonTextractRecognition:
                     )
                     image.save(image_path)
                 else:
-                    print(f"Expected Image and instead got: {type(images)}")
+                    logger.warning(f"Expected Image and instead got: {type(images)}")
 
     def _autotag_using_template(self, doc: PdfDoc, template_json_dict: dict, pdfix: Pdfix) -> None:
         """

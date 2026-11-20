@@ -1,5 +1,5 @@
 import json
-import sys
+import logging
 from datetime import date
 from pathlib import Path
 from typing import Any, Optional
@@ -13,7 +13,10 @@ from textractor.entities.table import Table
 from textractor.entities.table_cell import TableCell
 from textractor.entities.word import Word
 
+from logger import get_logger
 from process_bboxes import TextractPostProcessingBBoxes
+
+logger: logging.Logger = get_logger(__name__)
 
 
 class TemplateJsonCreator:
@@ -116,7 +119,7 @@ class TemplateJsonCreator:
                 config = json.load(f)
                 return config.get("version", "unknown")
         except (FileNotFoundError, json.JSONDecodeError) as e:
-            print(f"Error reading {self.CONFIG_FILE}: {e}", file=sys.stderr)
+            logger.error(f"Error reading {self.CONFIG_FILE}: {e}")
             return "unknown"
 
     def _create_json_for_elements(self, result: Document, page_view: PdfPageView) -> list:
