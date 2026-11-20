@@ -1,5 +1,6 @@
 import json
 import logging
+import shutil
 import tempfile
 from pathlib import Path
 from typing import Any, BinaryIO, Optional, cast
@@ -114,6 +115,16 @@ class AutotagUsingAmazonTextractRecognition:
 
             # Process each page
             number_of_pages: int = doc.GetNumPages()
+            if number_of_pages == 0:
+                # Nothing to tag, output is the original document
+                logger.info("Document has no pages. Saving original document.")
+                doc.Close()
+                shutil.copyfile(self.input_path_str, self.output_path_str)
+                progress_bar.n = total_progress_count
+                progress_bar.set_description("Done")
+                progress_bar.refresh()
+                return
+
             template_json_creator: TemplateJsonCreator = TemplateJsonCreator()
 
             progress_bar.update(PROGRESS_FIRST_STEP)

@@ -96,7 +96,8 @@ class CreateTemplateJsonUsingAmazonTextract:
 
             progress_bar.update(PROGRESS_FIRST_STEP)
             progress_bar.set_description("Processing pages")
-            step_count: float = float(PROGRESS_SECOND_STEP) / number_of_pages
+            # Document without pages gets template without pages
+            step_count: float = float(PROGRESS_SECOND_STEP) / max(number_of_pages, 1)
 
             for page_index in range(number_of_pages):
                 # Acquire the page
