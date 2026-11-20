@@ -2,6 +2,8 @@ CONFIG_FILE: str = "config.json"
 DOCKER_NAMESPACE: str = "pdfix"
 DOCKER_REPOSITORY: str = "autotag-textract"
 DOCKER_IMAGE: str = f"{DOCKER_NAMESPACE}/{DOCKER_REPOSITORY}"
+# Development only: save Amazon Textract results and template of each run into output folder
+DEBUG_OUTPUT: bool = False
 PERCENT_AI: float = 0.8
 PERCENT_RENDER: float = 0.1
 PERCENT_TEMPLATE: float = 0.1

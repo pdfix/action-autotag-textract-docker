@@ -16,6 +16,7 @@ from tqdm import tqdm
 
 from ai import process_image
 from constants import (
+    DEBUG_OUTPUT,
     PERCENT_AI,
     PERCENT_RENDER,
     PERCENT_TEMPLATE,
@@ -175,8 +176,9 @@ class CreateTemplateJsonUsingAmazonTextract:
                 progress_bar.update(ai_step_units)
 
                 # Custom conversion to dict and saving to json file
-                convertor: ConvertDocumentToDictionary = ConvertDocumentToDictionary(result, id, page_number)
-                convertor.save_as_json()
+                if DEBUG_OUTPUT:
+                    convertor: ConvertDocumentToDictionary = ConvertDocumentToDictionary(result, id, page_number)
+                    convertor.save_as_json()
 
                 # Process the results
                 templateJsonCreator.process_page(result, page_number, page_view)

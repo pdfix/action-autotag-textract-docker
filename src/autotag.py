@@ -24,6 +24,7 @@ from tqdm import tqdm
 
 from ai import process_image
 from constants import (
+    DEBUG_OUTPUT,
     PERCENT_AI,
     PERCENT_RENDER,
     PERCENT_TEMPLATE,
@@ -141,10 +142,10 @@ class AutotagUsingAmazonTextractRecognition:
             # Create template for whole document
             template_json_dict: dict = template_json_creator.create_json_dict_for_document(self.zoom)
 
-            # Save template to file
-            template_path: Path = Path(__file__).parent.parent.joinpath("output/{id}-template_json.json").resolve()
-            with open(template_path, "w") as file:
-                file.write(json.dumps(template_json_dict, indent=2))
+            if DEBUG_OUTPUT:
+                template_path: Path = Path(__file__).parent.parent.joinpath(f"output/{id}-template_json.json").resolve()
+                with open(template_path, "w") as file:
+                    file.write(json.dumps(template_json_dict, indent=2))
 
             progress_bar.n = PROGRESS_FIRST_STEP + PROGRESS_SECOND_STEP + PROGRESS_THIRD_STEP
             progress_bar.set_description("Autotagging document")
@@ -218,8 +219,9 @@ class AutotagUsingAmazonTextractRecognition:
                 # self._visualize_page(result, id, page_number)
 
                 # Custom conversion to dict and saving to json file
-                convertor: ConvertDocumentToDictionary = ConvertDocumentToDictionary(result, id, page_number)
-                convertor.save_as_json()
+                if DEBUG_OUTPUT:
+                    convertor: ConvertDocumentToDictionary = ConvertDocumentToDictionary(result, id, page_number)
+                    convertor.save_as_json()
 
                 # Process the results
                 templateJsonCreator.process_page(result, page_number, page_view)
