@@ -514,7 +514,7 @@ class TemplateJsonCreator:
             if word.text_type == constants.TextTypes.HANDWRITING:
                 is_handwriting = True
         if is_handwriting:
-            element["comment"] = f"{element['comment']} is handwriten"
+            element["comment"] = f"{element['comment']} is handwritten"
 
     def _convert_bool_to_str(self, value: bool) -> str:
         """
