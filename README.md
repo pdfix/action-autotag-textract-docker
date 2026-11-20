@@ -41,7 +41,7 @@ docker run --rm -v "$(pwd)":/data -w /data pdfix/autotag-textract:latest <comman
 | `--aws_region` | yes | String (AWS region code, e.g. `us-east-1`) | AWS region |
 | `--name` | no | String (PDFix account license name) | PDFix license name |
 | `--key` | no | String (PDFix account license key) | PDFix license key |
-| `--zoom` | no | Float, range **1.0–10.0** (default **2.0**) | Page render zoom |
+| `--zoom` | no | Float, range **1.0–4.0** (default **2.0**) | Page render zoom |
 
 ### `tag`
 

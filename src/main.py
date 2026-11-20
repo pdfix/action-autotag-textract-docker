@@ -110,7 +110,7 @@ def autotagging_pdf(
         output_path (str): Path to PDF document.
         zoom (float): Zoom level for rendering the page.
     """
-    if zoom < 1.0 or zoom > 10.0:
+    if zoom < 1.0 or zoom > 4.0:
         raise ArgumentZoomException()
 
     if input_path.lower().endswith(".pdf") and output_path.lower().endswith(".pdf"):
@@ -162,7 +162,7 @@ def create_template_json(
         output_path (str): Path to JSON file.
         zoom (float): Zoom level for rendering the page.
     """
-    if zoom < 1.0 or zoom > 10.0:
+    if zoom < 1.0 or zoom > 4.0:
         raise ArgumentZoomException()
 
     if input_path.lower().endswith(".pdf") and output_path.lower().endswith(".json"):

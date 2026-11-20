@@ -21,7 +21,7 @@ EC_AT_REGION_PROBLEM: int = 32
 EC_AT_ENDPOINT_CONNECTION_ERROR: int = 33
 
 MESSAGE_ARG_GENERAL: str = "Failed to parse arguments. Please check the usage and try again."
-MESSAGE_ARG_ZOOM: str = "Zoom level must be between 1.0 and 10.0."
+MESSAGE_ARG_ZOOM: str = "Zoom level must be between 1.0 and 4.0."
 MESSAGE_ARG_INPUT_PDF_OUTPUT_JSON: str = "Input file must be PDF document and output file must be JSON."
 MESSAGE_ARG_INPUT_PDF_OUTPUT_PDF: str = "Input and output file must be PDF documents."
 MESSAGE_ARG_OUTPUT_FOLDER_NOT_EXISTS: str = "Output folder does not exist."
