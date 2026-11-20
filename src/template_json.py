@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 import textractor.data.constants as constants
-from pdfixsdk import PdfDevRect, PdfPageView, PdfRect, __version__
+from pdfixsdk import PdfDevRect, PdfPageView, __version__
 from textractor.entities.bbox import BoundingBox
 from textractor.entities.document import Document
 from textractor.entities.layout import Layout
@@ -203,7 +203,7 @@ class TemplateJsonCreator:
                     element["type"] = "pde_list"
 
                 case constants.LAYOUT_PAGE_NUMBER:
-                    number_flag = self._is_footer_or_header(page_view, bbox)
+                    number_flag = self._is_footer_or_header(layout.bbox)
                     element["flag"] = f"{number_flag}|artifact|no_join|no_split"
                     element["text_flag"] = "no_new_line"
                     element["type"] = "pde_text"
@@ -528,17 +528,15 @@ class TemplateJsonCreator:
         """
         return "true" if value else "false"
 
-    def _is_footer_or_header(self, page_view: PdfPageView, bbox: PdfRect) -> str:
+    def _is_footer_or_header(self, bbox: BoundingBox) -> str:
         """
-        According to Y coordinate of bbox return if it is "header" or "footer"
+        According to vertical position of bbox on rendered page return if it is "header" or "footer"
 
         Args:
-            page_view (PdfPageView): Page view to get page heigh
-            bbox (PdfRect): Bounding box in PDF coordinates (Y=0 is bottom)
+            bbox (BoundingBox): Amazon Textract bounding box relative to page image (Y=0 is top, 1 is bottom)
 
         Returns:
             "header" or "footer"
         """
-        page_height = page_view.GetDeviceHeight()
-        half_height = page_height / 2
-        return "footer" if bbox.top < half_height else "header"
+        center_y: float = bbox.y + bbox.height / 2
+        return "header" if center_y < 0.5 else "footer"
